@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>表情监控 - Luminest</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --background-color: #f8f9fa;
+            --surface-color: #ffffff;
+            --text-color: #212529;
+            --text-light-color: #6c757d;
+            --border-color: #dee2e6;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --border-radius: 0.3rem;
+        }
+
+        body {
+            font-family: var(--font-family);
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 0;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            padding: 0 1.5rem;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        .sidebar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            margin: 0.2rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .sidebar a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid white;
+        }
+
+        .emotion-monitor {
+            flex-grow: 1;
+            margin-left: 250px;
+            padding: 2rem;
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .camera-section {
+            flex: 1;
+            max-width: 640px;
+        }
+        
+        .analysis-section {
+            flex: 1;
+            padding: 1.5rem;
+            background: var(--surface-color);
+            border-radius: var(--border-radius);
+            max-width: 400px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        #videoElement {
+            width: 100%;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: var(--surface-color);
+            margin-bottom: 1rem;
+        }
+        
+        .emotion-chart {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--surface-color);
+            border-radius: var(--border-radius);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .emotion-bar {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .emotion-label {
+            width: 100px;
+        }
+        
+        .emotion-value {
+            flex-grow: 1;
+            height: 20px;
+            background: #e1e1e1;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .emotion-fill {
+            height: 100%;
+            background: #4CAF50;
+            transition: width 0.3s ease;
+        }
+        
+        .danger-alert {
+            background: #ff5252;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            background: #e8f5e9;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Luminest工作坊</h2>
+        <a href="/">首页</a>
+        <a href="/danger_signals">危险信息监测</a>
+        <a href="/chat">对话测试</a>
+        <a href="/emotion_monitor">表情监控</a>
+    </div>
+
+    <div class="emotion-monitor">
+        <div class="camera-section">
+            <h2>实时摄像头</h2>
+            <video id="videoElement" autoplay></video>
+            <div class="status" id="cameraStatus">摄像头状态: 正在初始化...</div>
+        </div>
+        
+        <div class="analysis-section">
+            <h2>表情分析结果</h2>
+            <div id="dominantEmotion">主要情绪: <span>-</span></div>
+            
+            <div class="emotion-chart">
+                <div class="emotion-bar">
+                    <span class="emotion-label">开心</span>
+                    <div class="emotion-value">
+                        <div class="emotion-fill" id="happy" style="width: 0%"></div>
+                    </div>
+                    <span class="emotion-percent" id="happy-percent">0%</span>
+                </div>
+                
+                <div class="emotion-bar">
+                    <span class="emotion-label">悲伤</span>
+                    <div class="emotion-value">
+                        <div class="emotion-fill" id="sad" style="width: 0%"></div>
+                    </div>
+                    <span class="emotion-percent" id="sad-percent">0%</span>
+                </div>
+                
+                <div class="emotion-bar">
+                    <span class="emotion-label">愤怒</span>
+                    <div class="emotion-value">
+                        <div class="emotion-fill" id="angry" style="width: 0%"></div>
+                    </div>
+                    <span class="emotion-percent" id="angry-percent">0%</span>
+                </div>
+                
+                <div class="emotion-bar">
+                    <span class="emotion-label">恐惧</span>
+                    <div class="emotion-value">
+                        <div class="emotion-fill" id="fear" style="width: 0%"></div>
+                    </div>
+                    <span class="emotion-percent" id="fear-percent">0%</span>
+                </div>
+                
+                <div class="emotion-bar">
+                    <span class="emotion-label">厌恶</span>
+                    <div class="emotion-value">
+                        <div class="emotion-fill" id="disgust" style="width: 0%"></div>
+                    </div>
+                    <span class="emotion-percent" id="disgust-percent">0%</span>
+                </div>
+                
+                <div class="emotion-bar">
+                    <span class="emotion-label">惊讶</span>
+                    <div class="emotion-value">
+                        <div class="emotion-fill" id="surprise" style="width: 0%"></div>
+                    </div>
+                    <span class="emotion-percent" id="surprise-percent">0%</span>
+                </div>
+                
+                <div class="emotion-bar">
+                    <span class="emotion-label">中性</span>
+                    <div class="emotion-value">
+                        <div class="emotion-fill" id="neutral" style="width: 0%"></div>
+                    </div>
+                    <span class="emotion-percent" id="neutral-percent">0%</span>
+                </div>
+            </div>
+            
+            <div class="danger-alert" id="dangerAlert">
+                检测到抑郁倾向，请密切关注！
+            </div>
+            
+            <div class="status" id="analysisStatus">
+                分析状态: <span>等待开始</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let video = document.getElementById('videoElement');
+        let cameraStatus = document.getElementById('cameraStatus');
+        let analysisStatus = document.getElementById('analysisStatus');
+        let dangerAlert = document.getElementById('dangerAlert');
+        let canvas = document.createElement('canvas');
+        let analysisInterval = null;
+        
+        // 初始化摄像头
+        async function initCamera() {
+            try {
+                // 检查浏览器是否支持 getUserMedia
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    // 旧版浏览器可能通过前缀来支持
+                    navigator.mediaDevices = {};
+                    navigator.mediaDevices.getUserMedia = function(constraints) {
+                        let getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                        if (!getUserMedia) {
+                            cameraStatus.textContent = '摄像头状态: 您的浏览器不支持摄像头访问';
+                            cameraStatus.style.background = '#ffebee';
+                            return Promise.reject(new Error('您的浏览器不支持摄像头访问'));
+                        }
+                        return new Promise(function(resolve, reject) {
+                            getUserMedia.call(navigator, constraints, resolve, reject);
+                        });
+                    }
+                }
+
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    } 
+                });
+                video.srcObject = stream;
+                cameraStatus.textContent = '摄像头状态: 已启动';
+                cameraStatus.style.background = '#e8f5e9';
+                startAnalysis();
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                cameraStatus.textContent = '摄像头状态: 启动失败 - ' + (err.message || '无法访问摄像头');
+                cameraStatus.style.background = '#ffebee';
+            }
+        }
+        
+        // 开始分析
+        function startAnalysis() {
+            // 确保先停止任何现有的分析
+            if (analysisInterval) {
+                clearInterval(analysisInterval);
+            }
+            // 先立即执行一次分析
+            captureAndAnalyze();
+            // 然后设置定时器，每5秒分析一次
+            analysisInterval = setInterval(captureAndAnalyze, 5000);
+            analysisStatus.innerHTML = '<span>分析进行中...</span>';
+        }
+        
+        // 捕获并分析图像
+        async function captureAndAnalyze() {
+            // 在canvas上绘制视频帧
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            // 将canvas转换为blob
+            canvas.toBlob(async function(blob) {
+                const formData = new FormData();
+                formData.append('image', blob, 'capture.jpg');
+                
+                try {
+                    const response = await fetch('/api/analyze_emotion', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.status === 'success') {
+                        updateEmotionDisplay(result.result);
+                        updateDangerAlert(result.is_depressed);
+                    } else {
+                        console.error('Analysis failed:', result.message);
+                        analysisStatus.innerHTML = '<span style="color: #f44336;">分析失败: ' + result.message + '</span>';
+                    }
+                } catch (err) {
+                    console.error('Error during analysis:', err);
+                    analysisStatus.innerHTML = '<span style="color: #f44336;">分析出错: ' + err.message + '</span>';
+                }
+            }, 'image/jpeg', 0.8);
+        }
+        
+        // 更新情绪显示
+        function updateEmotionDisplay(result) {
+            // 更新主要情绪
+            document.querySelector('#dominantEmotion span').textContent = 
+                translateEmotion(result.dominant_emotion);
+            
+            // 更新各情绪百分比
+            for (let [emotion, value] of Object.entries(result.emotions)) {
+                const percent = Math.round(value * 100);
+                const fill = document.getElementById(emotion);
+                const percentText = document.getElementById(emotion + '-percent');
+                
+                if (fill && percentText) {
+                    fill.style.width = percent + '%';
+                    percentText.textContent = percent + '%';
+                }
+            }
+            
+            analysisStatus.innerHTML = '<span style="color: #4CAF50;">分析完成</span>';
+        }
+        
+        // 更新危险提示
+        function updateDangerAlert(isDepressed) {
+            dangerAlert.style.display = isDepressed ? 'block' : 'none';
+        }
+        
+        // 将英文情绪转换为中文
+        function translateEmotion(emotion) {
+            const translations = {
+                'happy': '开心',
+                'sad': '悲伤',
+                'angry': '愤怒',
+                'fear': '恐惧',
+                'disgust': '厌恶',
+                'surprise': '惊讶',
+                'neutral': '中性'
+            };
+            return translations[emotion] || emotion;
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initCamera);
+        
+        // 页面关闭时清理
+        window.addEventListener('beforeunload', () => {
+            if (analysisInterval) {
+                clearInterval(analysisInterval);
+            }
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
+</body>
+</html>

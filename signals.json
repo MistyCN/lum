@@ -1,23 +1,1356 @@
 [
     {
-        "type": "dangerous_chat",
-        "user_id": "\u6d4b\u8bd5ID",
-        "trigger_message": "\u6d4b\u8bd5\u5185\u5bb9",
-        "analyze": "\u6d4b\u8bd5\u5206\u6790",
-        "timestamp": "2025-07-10T23:54:08.501967"
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:01:41",
+        "data": {
+            "dominant_emotion": "sad",
+            "emotions": {
+                "angry": 0.6871641278266907,
+                "disgust": 0.0003156422753818333,
+                "fear": 1.6127821207046509,
+                "happy": 0.20656125247478485,
+                "sad": 73.64961242675781,
+                "surprise": 0.013156072236597538,
+                "neutral": 23.83040428161621
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
     },
     {
-        "type": "dangerous_chat",
-        "user_id": "\u6d4b\u8bd5ID",
-        "trigger_message": "\u6d4b\u8bd5\u5185\u5bb9",
-        "analyze": "\u6d4b\u8bd5\u5206\u6790",
-        "timestamp": "2025-07-10T23:57:34.174679"
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:01:44",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.05913136899471283,
+                "disgust": 1.1145968414894014e-07,
+                "fear": 0.37172767519950867,
+                "happy": 0.19074901938438416,
+                "sad": 0.11514696478843689,
+                "surprise": 0.0626647099852562,
+                "neutral": 99.20057678222656
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
     },
     {
-        "type": "dangerous_chat",
-        "user_id": "\u6d4b\u8bd5ID",
-        "trigger_message": "\u6709\u70b9\u60f3\u6b7b",
-        "analyze": "\"\u5386\u53f2\u603b\u7ed3\uff1a\n\u7528\u6237\u8868\u8fbe\u81ea\u6740\u610f\u5ff5\uff0c\u5c5e\u4e8e\u9ad8\u5371\u5fc3\u7406\u5371\u673a\u72b6\u6001\u3002\u6839\u636e\u5371\u673a\u5e72\u9884ABC\u6a21\u578b\uff0c\u7528\u6237\u5904\u4e8e\u60c5\u611f\u5d29\u6e83\u671f\uff08Affective Breakdown\uff09\uff0c\u5b58\u5728\u660e\u663e\u7684\u8ba4\u77e5\u72ed\u7a84\uff08Cognitive Constriction\uff09\u548c\u7edd\u671b\u611f\u3002\u673a\u5668\u4eba\u91c7\u7528\u5171\u60c5\u6280\u672f\uff08\"\u5fc3\u75bc\u4f60\"\uff09\u3001\u6b63\u5e38\u5316\u6280\u672f\uff08\"\u6682\u65f6\u7684\"\uff09\u548c\u5b89\u5168\u786e\u8ba4\uff08\"\u62c5\u5fc3\u4f60\u7684\u5b89\u5168\"\uff09\u8fdb\u884c\u521d\u6b65\u5e72\u9884\uff0c\u5e76\u63d0\u4f9b\u4e86\u793e\u4f1a\u652f\u6301\u8d44\u6e90\u548c\u4e13\u4e1a\u6c42\u52a9\u6e20\u9053\u3002\n\n\u5904\u7406\u5efa\u8bae\uff1a\n1. \u7acb\u5373\u542f\u52a8\u81ea\u6740\u98ce\u9669\u8bc4\u4f30\uff08SAD PERSONS\u91cf\u8868\uff09\n2. \u5efa\u8bae\u4e13\u4e1a\u4eba\u58eb\u91c7\u7528CAMS\u5e72\u9884\u6846\u67b6\uff1a\n   - \u5408\u4f5c\u5efa\u7acb\u5b89\u5168\u8ba1\u5212\uff08\u53bb\u9664\u81ea\u6740\u5de5\u5177\uff09\n   - \u8bc6\u522b\u75db\u82e6\u6e90\uff08\u5fc3\u7406\u75db\u82e6\u7b5b\u67e5\uff09\n   - \u6784\u5efa\u5e0c\u671b\u7bb1\u6280\u672f\uff08\u56de\u5fc6\u79ef\u6781\u4e8b\u4ef6\uff09\n3. \u8f6c\u4ecb\u7cbe\u795e\u79d1\u8fdb\u884c\u6291\u90c1\u75c7\u7b5b\u67e5\n4. \u5efa\u7acb\u76d1\u62a4\u7f51\u7edc\uff08\u5bb6\u4eba/\u670b\u53cb\u8f6e\u73ed\u966a\u4f34\uff09\"",
-        "timestamp": "2025-07-12T15:13:58.932112"
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:01:48",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.10009950399398804,
+                "disgust": 4.675660303377072e-09,
+                "fear": 0.4570988416671753,
+                "happy": 0.38672298192977905,
+                "sad": 0.4772852957248688,
+                "surprise": 0.4723286032676697,
+                "neutral": 98.10646057128906
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:01:53",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.06007425859570503,
+                "disgust": 3.901984655385604e-06,
+                "fear": 1.604616641998291,
+                "happy": 33.80493927001953,
+                "sad": 0.042531952261924744,
+                "surprise": 6.492535591125488,
+                "neutral": 57.995296478271484
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:01:54",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.061807237565517426,
+                "disgust": 1.8945298506878316e-05,
+                "fear": 6.689448356628418,
+                "happy": 23.194852828979492,
+                "sad": 0.2583908438682556,
+                "surprise": 6.670007705688477,
+                "neutral": 63.12547302246094
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:01:59",
+        "data": {
+            "dominant_emotion": "sad",
+            "emotions": {
+                "angry": 0.0005353310843929648,
+                "disgust": 1.1322460136026664e-16,
+                "fear": 12.235281944274902,
+                "happy": 1.2430735296220519e-05,
+                "sad": 82.09053039550781,
+                "surprise": 3.860635843011551e-06,
+                "neutral": 5.673632621765137
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:02:03",
+        "data": {
+            "dominant_emotion": "fear",
+            "emotions": {
+                "angry": 0.008345937356352806,
+                "disgust": 3.798378429564764e-06,
+                "fear": 90.51260375976562,
+                "happy": 1.4608229398727417,
+                "sad": 0.19386571645736694,
+                "surprise": 7.4822282791137695,
+                "neutral": 0.34213659167289734
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:02:04",
+        "data": {
+            "dominant_emotion": "fear",
+            "emotions": {
+                "angry": 0.02325494773685932,
+                "disgust": 4.228098191561003e-07,
+                "fear": 71.5637435913086,
+                "happy": 0.9508615136146545,
+                "sad": 23.662242889404297,
+                "surprise": 0.12248668819665909,
+                "neutral": 3.6774134635925293
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:02:08",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.5307074189186096,
+                "disgust": 2.4575714796526427e-09,
+                "fear": 0.15858343243598938,
+                "happy": 33.90130615234375,
+                "sad": 0.014222051948308945,
+                "surprise": 0.40099307894706726,
+                "neutral": 64.99419403076172
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:02:09",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.5216344594955444,
+                "disgust": 4.904942008110424e-10,
+                "fear": 0.03305337578058243,
+                "happy": 29.660511016845703,
+                "sad": 0.03733907639980316,
+                "surprise": 0.08842211961746216,
+                "neutral": 69.6590347290039
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:02:13",
+        "data": {
+            "dominant_emotion": "happy",
+            "emotions": {
+                "angry": 0.08350395411252975,
+                "disgust": 0.0008377914782613516,
+                "fear": 2.3186275959014893,
+                "happy": 44.68027877807617,
+                "sad": 19.956117630004883,
+                "surprise": 0.008226271718740463,
+                "neutral": 32.952415466308594
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:02:14",
+        "data": {
+            "dominant_emotion": "fear",
+            "emotions": {
+                "angry": 2.0702292919158936,
+                "disgust": 0.001485860557295382,
+                "fear": 77.170654296875,
+                "happy": 3.8505871295928955,
+                "sad": 0.20572316646575928,
+                "surprise": 15.938501358032227,
+                "neutral": 0.7628118991851807
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:02:18",
+        "data": {
+            "dominant_emotion": "surprise",
+            "emotions": {
+                "angry": 7.997505804269167e-07,
+                "disgust": 2.8427666037139643e-12,
+                "fear": 28.194374084472656,
+                "happy": 3.2646955787640763e-06,
+                "sad": 0.00023865734692662954,
+                "surprise": 71.80536651611328,
+                "neutral": 1.6391319149988703e-05
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:02:19",
+        "data": {
+            "dominant_emotion": "fear",
+            "emotions": {
+                "angry": 0.06190680339932442,
+                "disgust": 1.9444581994321197e-05,
+                "fear": 99.64674377441406,
+                "happy": 0.04216880351305008,
+                "sad": 0.01572750322520733,
+                "surprise": 0.23268966376781464,
+                "neutral": 0.000727365433704108
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:02:29",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.01067091803997755,
+                "disgust": 2.5110105070780264e-06,
+                "fear": 12.671232223510742,
+                "happy": 3.445305585861206,
+                "sad": 28.099668502807617,
+                "surprise": 0.06075581908226013,
+                "neutral": 55.712364196777344
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:02:34",
+        "data": {
+            "dominant_emotion": "fear",
+            "emotions": {
+                "angry": 0.002737349597737193,
+                "disgust": 1.4912495771568501e-06,
+                "fear": 93.11450958251953,
+                "happy": 0.20877432823181152,
+                "sad": 0.29325467348098755,
+                "surprise": 2.0574021339416504,
+                "neutral": 4.3233208656311035
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:02:39",
+        "data": {
+            "dominant_emotion": "fear",
+            "emotions": {
+                "angry": 0.012917951680719852,
+                "disgust": 2.418864460196346e-05,
+                "fear": 94.17471313476562,
+                "happy": 1.864783763885498,
+                "sad": 0.4309835731983185,
+                "surprise": 1.2676156759262085,
+                "neutral": 2.2489635944366455
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:02:44",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.08922640234231949,
+                "disgust": 1.8324582242712495e-06,
+                "fear": 0.25708040595054626,
+                "happy": 0.3277125954627991,
+                "sad": 0.5880171656608582,
+                "surprise": 0.0014467068249359727,
+                "neutral": 98.73651885986328
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:02:49",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 2.4325921535491943,
+                "disgust": 0.00017559361003804952,
+                "fear": 1.6292269229888916,
+                "happy": 2.799776554107666,
+                "sad": 2.022771120071411,
+                "surprise": 0.10074623674154282,
+                "neutral": 91.01470947265625
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:03:04",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.013111512176692486,
+                "disgust": 6.806389896141241e-10,
+                "fear": 0.3045998513698578,
+                "happy": 1.8336418867111206,
+                "sad": 0.00867475662380457,
+                "surprise": 0.32398954033851624,
+                "neutral": 97.51598358154297
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:03:09",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.6162163019180298,
+                "disgust": 3.5168449130651425e-07,
+                "fear": 0.5823684334754944,
+                "happy": 9.192795753479004,
+                "sad": 0.39644885063171387,
+                "surprise": 0.35337427258491516,
+                "neutral": 88.85879516601562
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:03:09",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.278874933719635,
+                "disgust": 2.19799957790201e-07,
+                "fear": 0.4358648359775543,
+                "happy": 2.3431246280670166,
+                "sad": 0.7364916801452637,
+                "surprise": 0.23335561156272888,
+                "neutral": 95.9722900390625
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:03:14",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.3182709217071533,
+                "disgust": 9.395868801220786e-06,
+                "fear": 0.3238380551338196,
+                "happy": 43.455806732177734,
+                "sad": 0.25961020588874817,
+                "surprise": 0.038152873516082764,
+                "neutral": 55.60430908203125
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:03:14",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.008517167530953884,
+                "disgust": 4.0497511122339347e-07,
+                "fear": 0.6025538444519043,
+                "happy": 8.814703941345215,
+                "sad": 1.000593662261963,
+                "surprise": 0.05404171347618103,
+                "neutral": 89.51959228515625
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:03:19",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 4.755551815032959,
+                "disgust": 5.449170566862449e-05,
+                "fear": 2.5021579265594482,
+                "happy": 0.003985049203038216,
+                "sad": 5.206645965576172,
+                "surprise": 0.0014242337783798575,
+                "neutral": 87.53018188476562
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "timestamp": "2025-08-13 21:03:19",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 1.1528221368789673,
+                "disgust": 5.368049187381985e-06,
+                "fear": 0.8727353811264038,
+                "happy": 0.008508202619850636,
+                "sad": 1.6320440769195557,
+                "surprise": 0.0011598658747971058,
+                "neutral": 96.33272552490234
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "fear",
+        "timestamp": "2025-08-13 21:10:49",
+        "data": {
+            "dominant_emotion": "fear",
+            "emotions": {
+                "angry": 0.7426731586456299,
+                "disgust": 1.769291702657938e-05,
+                "fear": 77.97859191894531,
+                "happy": 2.0122883319854736,
+                "sad": 3.0377357006073,
+                "surprise": 10.620945930480957,
+                "neutral": 5.607748985290527
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "fear",
+        "timestamp": "2025-08-13 21:10:49",
+        "data": {
+            "dominant_emotion": "fear",
+            "emotions": {
+                "angry": 0.7426731586456299,
+                "disgust": 1.769291702657938e-05,
+                "fear": 77.97859191894531,
+                "happy": 2.0122883319854736,
+                "sad": 3.0377357006073,
+                "surprise": 10.620945930480957,
+                "neutral": 5.607748985290527
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:11:07",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.2662792503833771,
+                "disgust": 5.324073754309211e-06,
+                "fear": 19.6057071685791,
+                "happy": 2.388603925704956,
+                "sad": 1.3913899660110474,
+                "surprise": 0.35544246435165405,
+                "neutral": 75.9925765991211
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:11:12",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.07623090595006943,
+                "disgust": 9.767435926733015e-08,
+                "fear": 0.29945722222328186,
+                "happy": 0.07374589890241623,
+                "sad": 0.25171929597854614,
+                "surprise": 0.05220026522874832,
+                "neutral": 99.24665069580078
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:11:17",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 3.350725705786317e-07,
+                "disgust": 4.2317823531454037e-22,
+                "fear": 1.9866294564963027e-07,
+                "happy": 2.9096804610162508e-06,
+                "sad": 0.005271085537970066,
+                "surprise": 6.281972338151309e-12,
+                "neutral": 99.9947280883789
+            }
+        },
+        "analysis": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "surprise",
+        "timestamp": "2025-08-13 21:17:00",
+        "data": {
+            "dominant_emotion": "surprise",
+            "emotions": {
+                "angry": 2.171215534210205,
+                "disgust": 0.00023024427355267107,
+                "fear": 6.545597076416016,
+                "happy": 0.03648286685347557,
+                "sad": 6.9062089920043945,
+                "surprise": 80.33145904541016,
+                "neutral": 4.008802890777588
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "surprise",
+        "timestamp": "2025-08-13 21:17:00",
+        "data": {
+            "dominant_emotion": "surprise",
+            "emotions": {
+                "angry": 2.171215534210205,
+                "disgust": 0.00023024427355267107,
+                "fear": 6.545597076416016,
+                "happy": 0.03648286685347557,
+                "sad": 6.9062089920043945,
+                "surprise": 80.33145904541016,
+                "neutral": 4.008802890777588
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:17:00",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.00039506974280811846,
+                "disgust": 5.747599661834468e-14,
+                "fear": 0.00033166236244142056,
+                "happy": 0.0017830308061093092,
+                "sad": 0.006372298114001751,
+                "surprise": 0.0006986925727687776,
+                "neutral": 99.99042510986328
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "fear",
+        "timestamp": "2025-08-13 21:17:05",
+        "data": {
+            "dominant_emotion": "fear",
+            "emotions": {
+                "angry": 0.44367459416389465,
+                "disgust": 0.0005385231343097985,
+                "fear": 96.90583801269531,
+                "happy": 0.1036219522356987,
+                "sad": 2.1852610111236572,
+                "surprise": 0.11414229869842529,
+                "neutral": 0.2469201236963272
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "angry",
+        "timestamp": "2025-08-13 21:17:07",
+        "data": {
+            "dominant_emotion": "angry",
+            "emotions": {
+                "angry": 34.330936431884766,
+                "disgust": 0.0328865647315979,
+                "fear": 17.17926788330078,
+                "happy": 4.9219465255737305,
+                "sad": 12.47944450378418,
+                "surprise": 4.134342670440674,
+                "neutral": 26.921167373657227
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "fear",
+        "timestamp": "2025-08-13 21:17:10",
+        "data": {
+            "dominant_emotion": "fear",
+            "emotions": {
+                "angry": 1.9560738801956177,
+                "disgust": 0.008839450776576996,
+                "fear": 73.22489929199219,
+                "happy": 0.9790875911712646,
+                "sad": 4.716120719909668,
+                "surprise": 1.7166621685028076,
+                "neutral": 17.398317337036133
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:17:12",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 5.564636012422852e-05,
+                "disgust": 8.789512001147615e-18,
+                "fear": 0.008047685027122498,
+                "happy": 0.00036843770067207515,
+                "sad": 0.9692938923835754,
+                "surprise": 2.4334080080734566e-05,
+                "neutral": 99.02220916748047
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:17:15",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 1.6362223220767191e-07,
+                "disgust": 6.508915415925475e-15,
+                "fear": 0.0009756652289070189,
+                "happy": 7.391201393147639e-07,
+                "sad": 0.0076843081042170525,
+                "surprise": 5.168338290673091e-08,
+                "neutral": 99.99134063720703
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:17:17",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 1.0499831438064575,
+                "disgust": 9.292382856074255e-06,
+                "fear": 5.128673553466797,
+                "happy": 0.1900538206100464,
+                "sad": 0.4060639441013336,
+                "surprise": 3.1268584728240967,
+                "neutral": 90.09835815429688
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:17:20",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.1793496161699295,
+                "disgust": 1.5204497685772367e-05,
+                "fear": 17.083187103271484,
+                "happy": 0.32376617193222046,
+                "sad": 3.7433438301086426,
+                "surprise": 0.10473217070102692,
+                "neutral": 78.56561279296875
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:17:22",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.5009632110595703,
+                "disgust": 0.00027897252584807575,
+                "fear": 0.8814840316772461,
+                "happy": 0.4974355101585388,
+                "sad": 4.2417192459106445,
+                "surprise": 0.009932218119502068,
+                "neutral": 93.8681869506836
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:17:25",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.8691425323486328,
+                "disgust": 5.5753261563040724e-08,
+                "fear": 0.3196105659008026,
+                "happy": 18.462675094604492,
+                "sad": 0.20207995176315308,
+                "surprise": 0.02481432445347309,
+                "neutral": 80.1216812133789
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:17:27",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 3.8392279148101807,
+                "disgust": 6.21183630755695e-07,
+                "fear": 2.809483766555786,
+                "happy": 0.44601351022720337,
+                "sad": 1.9453741312026978,
+                "surprise": 0.014625836163759232,
+                "neutral": 90.94528198242188
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "fear",
+        "timestamp": "2025-08-13 21:17:30",
+        "data": {
+            "dominant_emotion": "fear",
+            "emotions": {
+                "angry": 1.476546032108672e-07,
+                "disgust": 8.174372095014204e-14,
+                "fear": 99.0790786743164,
+                "happy": 0.4994053542613983,
+                "sad": 0.29087957739830017,
+                "surprise": 0.00010471912537468597,
+                "neutral": 0.1305358111858368
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:17:32",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.9722615480422974,
+                "disgust": 0.008320469409227371,
+                "fear": 1.9925813674926758,
+                "happy": 1.1694005727767944,
+                "sad": 4.7897868156433105,
+                "surprise": 0.04959168657660484,
+                "neutral": 91.01805877685547
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:17:35",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 1.720459658827167e-05,
+                "disgust": 1.2326658790917655e-11,
+                "fear": 17.892805099487305,
+                "happy": 0.0001433785364497453,
+                "sad": 3.4221999645233154,
+                "surprise": 0.0007955664186738431,
+                "neutral": 78.68404388427734
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "fear",
+        "timestamp": "2025-08-13 21:17:37",
+        "data": {
+            "dominant_emotion": "fear",
+            "emotions": {
+                "angry": 0.002251198748126626,
+                "disgust": 1.112214135901013e-06,
+                "fear": 79.90210723876953,
+                "happy": 0.6177978515625,
+                "sad": 2.563446044921875,
+                "surprise": 0.9576907157897949,
+                "neutral": 15.95670223236084
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "fear",
+        "timestamp": "2025-08-13 21:17:40",
+        "data": {
+            "dominant_emotion": "fear",
+            "emotions": {
+                "angry": 24.456745147705078,
+                "disgust": 0.04218742623925209,
+                "fear": 43.97395706176758,
+                "happy": 0.49400049448013306,
+                "sad": 14.544032096862793,
+                "surprise": 2.322364330291748,
+                "neutral": 14.166712760925293
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:17:42",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 1.2474686172936345e-08,
+                "disgust": 4.945947142588967e-21,
+                "fear": 3.510201349854469e-05,
+                "happy": 1.9480334856325499e-07,
+                "sad": 0.009823978878557682,
+                "surprise": 2.746199656566972e-10,
+                "neutral": 99.99014282226562
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:17:45",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 1.1331133842468262,
+                "disgust": 3.1114899456952116e-07,
+                "fear": 3.005605936050415,
+                "happy": 0.695321261882782,
+                "sad": 4.141234874725342,
+                "surprise": 0.1373816579580307,
+                "neutral": 90.88734436035156
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:17:47",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.2784031927585602,
+                "disgust": 1.6346978881642826e-08,
+                "fear": 1.4938219785690308,
+                "happy": 1.6977099180221558,
+                "sad": 1.2251907587051392,
+                "surprise": 0.08634824305772781,
+                "neutral": 95.2185287475586
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:17:50",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.05204685404896736,
+                "disgust": 3.570600881630526e-08,
+                "fear": 1.0965029001235962,
+                "happy": 0.6678412556648254,
+                "sad": 0.36738350987434387,
+                "surprise": 2.0519168376922607,
+                "neutral": 95.76431274414062
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:17:52",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.7473293542861938,
+                "disgust": 1.9934470401494764e-05,
+                "fear": 0.8362730145454407,
+                "happy": 0.18665629625320435,
+                "sad": 0.8209927678108215,
+                "surprise": 0.0029959341045469046,
+                "neutral": 97.40573120117188
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:17:55",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 4.855972747463966e-06,
+                "disgust": 2.8584506542358103e-17,
+                "fear": 0.05929157882928848,
+                "happy": 1.810114547140529e-08,
+                "sad": 0.5882431864738464,
+                "surprise": 7.081923172336246e-07,
+                "neutral": 99.35245513916016
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:17:57",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.08298961073160172,
+                "disgust": 2.0745186191106768e-07,
+                "fear": 26.691829681396484,
+                "happy": 1.4473474025726318,
+                "sad": 0.13359324634075165,
+                "surprise": 28.370502471923828,
+                "neutral": 43.27373123168945
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "fear",
+        "timestamp": "2025-08-13 21:18:00",
+        "data": {
+            "dominant_emotion": "fear",
+            "emotions": {
+                "angry": 3.0291917028080206e-06,
+                "disgust": 1.2442077804240143e-13,
+                "fear": 99.69116973876953,
+                "happy": 6.882872050084643e-09,
+                "sad": 0.2856903076171875,
+                "surprise": 3.5414298054092797e-06,
+                "neutral": 0.023128744214773178
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:18:02",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.00010093798482557759,
+                "disgust": 6.909713700623027e-22,
+                "fear": 0.001732207601889968,
+                "happy": 1.0146594320303848e-07,
+                "sad": 0.010949350893497467,
+                "surprise": 0.032336436212062836,
+                "neutral": 99.95488739013672
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:18:05",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 5.299053555063438e-06,
+                "disgust": 3.264335276798025e-17,
+                "fear": 0.1169857531785965,
+                "happy": 1.7997331269725692e-07,
+                "sad": 0.20695006847381592,
+                "surprise": 1.0329759120941162,
+                "neutral": 98.64308166503906
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:18:07",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 8.773271560668945,
+                "disgust": 0.18295466899871826,
+                "fear": 3.7321858406066895,
+                "happy": 0.08427194505929947,
+                "sad": 23.67441177368164,
+                "surprise": 0.016465267166495323,
+                "neutral": 63.536441802978516
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:18:10",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.09293363988399506,
+                "disgust": 5.359165243135067e-06,
+                "fear": 0.7782351970672607,
+                "happy": 1.77286958694458,
+                "sad": 1.2105588912963867,
+                "surprise": 0.050394754856824875,
+                "neutral": 96.09500885009766
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:18:12",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.6444929838180542,
+                "disgust": 6.275081432249863e-08,
+                "fear": 2.4667251110076904,
+                "happy": 0.09194076061248779,
+                "sad": 3.6420974731445312,
+                "surprise": 0.06817172467708588,
+                "neutral": 93.0865707397461
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "fear",
+        "timestamp": "2025-08-13 21:18:15",
+        "data": {
+            "dominant_emotion": "fear",
+            "emotions": {
+                "angry": 0.0003988944226875901,
+                "disgust": 5.7236302503094194e-11,
+                "fear": 67.05964660644531,
+                "happy": 1.044623054724525e-08,
+                "sad": 7.705411434173584,
+                "surprise": 9.835263881541323e-06,
+                "neutral": 25.234535217285156
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:18:17",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.08130951225757599,
+                "disgust": 1.4156423276290298e-05,
+                "fear": 2.4497756958007812,
+                "happy": 2.9026033878326416,
+                "sad": 1.3992732763290405,
+                "surprise": 0.572245180606842,
+                "neutral": 92.59477996826172
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:18:20",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 1.8636507987976074,
+                "disgust": 7.385879143839702e-06,
+                "fear": 5.385312080383301,
+                "happy": 1.4776148796081543,
+                "sad": 1.3461787700653076,
+                "surprise": 4.73629903793335,
+                "neutral": 85.19093322753906
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:18:22",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.00031176491756923497,
+                "disgust": 4.8040744152948525e-14,
+                "fear": 4.023970127105713,
+                "happy": 7.573758287193755e-10,
+                "sad": 8.630373001098633,
+                "surprise": 2.8247413865756243e-06,
+                "neutral": 87.34534454345703
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:18:25",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.0001141655957326293,
+                "disgust": 5.042204853514601e-14,
+                "fear": 4.194228649139404,
+                "happy": 3.2488689516441127e-09,
+                "sad": 16.897436141967773,
+                "surprise": 2.11923406823189e-06,
+                "neutral": 78.90821838378906
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:18:27",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.3548107445240021,
+                "disgust": 2.5177200768666808e-06,
+                "fear": 8.605299949645996,
+                "happy": 1.7473043203353882,
+                "sad": 1.1100939512252808,
+                "surprise": 0.559690535068512,
+                "neutral": 87.622802734375
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:18:30",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.7687696218490601,
+                "disgust": 1.9986268853244837e-06,
+                "fear": 3.3616087436676025,
+                "happy": 4.697281837463379,
+                "sad": 1.6575772762298584,
+                "surprise": 0.8786401748657227,
+                "neutral": 88.63611602783203
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:18:32",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 2.025580406188965,
+                "disgust": 2.534345924232184e-07,
+                "fear": 6.242149353027344,
+                "happy": 2.814173936843872,
+                "sad": 3.940324068069458,
+                "surprise": 0.1704593002796173,
+                "neutral": 84.80731964111328
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:18:35",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 13.338130950927734,
+                "disgust": 0.41330015659332275,
+                "fear": 15.228341102600098,
+                "happy": 1.8282424211502075,
+                "sad": 10.667478561401367,
+                "surprise": 0.049458302557468414,
+                "neutral": 58.47504806518555
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:18:40",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 0.5584127902984619,
+                "disgust": 0.00026938653900288045,
+                "fear": 0.2701510190963745,
+                "happy": 0.13851532340049744,
+                "sad": 2.660975456237793,
+                "surprise": 0.009832370094954967,
+                "neutral": 96.36184692382812
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "neutral",
+        "timestamp": "2025-08-13 21:18:45",
+        "data": {
+            "dominant_emotion": "neutral",
+            "emotions": {
+                "angry": 4.387523233617685e-07,
+                "disgust": 8.529136598378617e-13,
+                "fear": 0.006137154530733824,
+                "happy": 0.00047361309407278895,
+                "sad": 0.39406102895736694,
+                "surprise": 4.984611678082729e-06,
+                "neutral": 99.59932708740234
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
+    },
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "surprise",
+        "timestamp": "2025-08-13 21:18:50",
+        "data": {
+            "dominant_emotion": "surprise",
+            "emotions": {
+                "angry": 3.9093270301818848,
+                "disgust": 1.232558020092256e-06,
+                "fear": 15.851980209350586,
+                "happy": 5.131199359893799,
+                "sad": 2.5020530223846436,
+                "surprise": 52.34162902832031,
+                "neutral": 20.263811111450195
+            }
+        },
+        "analyze": "用户表情呈现出抑郁特征，建议进行干预"
     }
 ]

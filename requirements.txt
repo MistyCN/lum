@@ -4,5 +4,8 @@ pyaudio
 pygame
 numpy
 baidu-aip
-dotenv
+python-dotenv
 flask
+deepface
+opencv-python
+tf-keras

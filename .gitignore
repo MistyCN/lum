@@ -1,6 +1,10 @@
-#本项目特别的忽略项
+# 本项目特别的忽略项
 output.mp3
 record.wav
+
+# deepface模型忽略
+.deepface/weights
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

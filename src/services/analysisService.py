@@ -22,7 +22,7 @@ class DeepseekAnalysisService(BaseAnalysisService):
     def __init__(self):
         self.config = Config()
         self.client = openai.OpenAI(
-            api_key=self.config.deepseek_api_key,
+            api_key=self.config.deepseekApiKey,
             base_url="https://api.deepseek.com"
         )
         

@@ -9,25 +9,19 @@ class CozeChatService(BaseChatService):
     
     def __init__(self):
         self.config = Config()
-        self.chat_history = []
+        self.chatHistory = []
         self.coze = Coze(
-            auth=TokenAuth(token=self.config.coze_api_token),
+            auth=TokenAuth(token=self.config.cozeApiToken),
             base_url=COZE_CN_BASE_URL
         )
     
-    def process_stream_message(self, user_message: str) -> Generator:
+    def processStreamMessage(self, userMessage: str) -> Generator:
         """处理流式消息"""
-        if not user_message:
+        if not userMessage:
             yield {"type": "error", "message": "请输入有效的信息。"}
             return
-
-        # 添加用户消息到历史记录
-        self.chat_history.append({"role": "user", "content": user_message})
-
-        # 准备上下文消息
+        self.chatHistory.append({"role": "user", "content": userMessage})
         context_messages = self._prepare_context_messages()
-        
-        # 处理流式响应
         current = ''
         for event in self.coze.chat.stream(
             bot_id="7499749049093570598",
@@ -38,61 +32,59 @@ class CozeChatService(BaseChatService):
                 print(event.message.content, end="", flush=True)
                 current += event.message.content
                 yield {"type": "normal", "message": event.message.content}
-        
-        # 添加完整响应到历史记录
-        self.chat_history.append({"role": "assistant", "content": current})
+        self.chatHistory.append({"role": "assistant", "content": current})
 
-    def process_message(self, user_message: str) -> str:
+    def processMessage(self, userMessage: str) -> str:
         """处理单条消息"""
-        m = self.process_stream_message(user_message)
+        m = self.processStreamMessage(userMessage)
         sum = ""
         for each in m:
             sum += each.get('message', '')
-        print("\n历史记录:", self.chat_history, "\n")
+        print("\n历史记录:", self.chatHistory, "\n")
         return sum
 
-    def _prepare_context_messages(self) -> List[Message]:
+    def _prepareContextMessages(self) -> List[Message]:
         """准备上下文消息"""
         messages = []
-        for msg in self.chat_history[-self.config.max_history_length:]:
+        for msg in self.chatHistory[-self.config.maxHistoryLength:]:
             if msg["role"] == "user":
                 messages.append(Message.build_user_question_text(msg["content"]))
             else:
                 messages.append(Message.build_assistant_answer(msg["content"]))
         return messages
 
-    def get_chat_history(self) -> List[Dict]:
+    def getChatHistory(self) -> List[Dict]:
         """获取聊天历史"""
-        return self.chat_history
+        return self.chatHistory
 
-    def save_chat_history(self) -> None:
+    def saveChatHistory(self) -> None:
         """保存聊天历史到文件"""
         try:
             with open('chat_history.json', 'w', encoding='utf-8') as f:
-                json.dump(self.chat_history, f, ensure_ascii=False, indent=4)
+                json.dump(self.chatHistory, f, ensure_ascii=False, indent=4)
         except Exception as e:
             print(f"保存聊天历史时出错: {str(e)}")
             raise
 
-    def load_chat_history(self) -> None:
+    def loadChatHistory(self) -> None:
         """从文件加载聊天历史"""
         try:
             with open('chat_history.json', 'r', encoding='utf-8') as f:
-                self.chat_history = json.load(f)
+                self.chatHistory = json.load(f)
         except FileNotFoundError:
             print("未找到聊天历史文件")
-            self.chat_history = []
+            self.chatHistory = []
         except Exception as e:
             print(f"加载聊天历史时出错: {str(e)}")
             raise
 
-    def delete_chat_history(self) -> None:
+    def deleteChatHistory(self) -> None:
         """删除聊天历史"""
-        self.chat_history = []
+        self.chatHistory = []
         
-    def update_user_preferences(self, preferences: Dict) -> None:
+    def updateUserPreferences(self, preferences: Dict) -> None:
         """更新用户喜好"""
-        self.chat_history.append({
+        self.chatHistory.append({
             "role": "user",
             "content": "当前最新的用户喜好:" + str(preferences)
         })
