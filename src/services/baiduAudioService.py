@@ -12,9 +12,9 @@ class BaiduAudioService(BaseAudioService):
     def __init__(self):
         self.config = Config()
         self.client = AipSpeech(
-            self.config.baidu_appid,
-            self.config.baidu_api_key,
-            self.config.baidu_secret_key
+            self.config.baiduAppid,
+            self.config.baiduApiKey,
+            self.config.baiduSecretKey
         )
         
     def _get_file_content(self, file_path: str) -> bytes:

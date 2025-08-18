@@ -5,6 +5,8 @@ from src.services.analysisService import DeepseekAnalysisService
 from src.services.deepfaceEmotionService import DeepfaceEmotionService
 import json
 import os
+import sys
+from src.generate_cert import generate_self_signed_cert
 
 class WebApp:
     """Luminest Web应用"""
@@ -18,6 +20,20 @@ class WebApp:
         self.emotionService = DeepfaceEmotionService()
         self.preferences = {}
         self._setupRoutes()
+        try:
+            self.cert_file, self.key_file = generate_self_signed_cert()
+            print(f"使用证书文件: {self.cert_file}")
+            print(f"使用私钥文件: {self.key_file}")
+            # 启动HTTPS服务器
+            print(f"启动HTTPS服务器")
+            print("注意: 首次访问时浏览器可能会显示安全警告，请点击'高级'并'继续访问'")
+        except ImportError:
+            print("错误: 需要安装pyOpenSSL库以支持HTTPS")
+            print("请运行: pip install pyOpenSSL")
+            sys.exit(1)
+        except Exception as e:
+            print(f"启动HTTPS服务器失败: {str(e)}")
+            sys.exit(1)
         
     def _setupRoutes(self):
         """设置路由"""
@@ -224,11 +240,18 @@ class WebApp:
         if self.preferences:
             self.chatService.updateUserPreferences(self.preferences)
             
-    def run(self, host='0.0.0.0', port=5000, debug=False):
+    def run(self, host='0.0.0.0', port=5000, debug=False, ssl_context=None):
         """运行Web应用"""
+        ssl_context = (self.cert_file, self.key_file) if ssl_context is None else ssl_context
         self._loadHistory()
         print("Luminest 工作坊网页版启动")
-        self.app.run(host=host, port=port, debug=debug)
+        if ssl_context:
+            print(f"HTTPS模式启动，访问地址: https://{host}:{port}")
+            print("注意: 首次访问时浏览器可能会显示安全警告，请点击'高级'并'继续访问'")
+        else:
+            print(f"HTTP模式启动，访问地址: http://{host}:{port}")
+            print("提示: 如果需要通过局域网IP访问摄像头功能，请使用HTTPS模式")
+        self.app.run(host=host, port=port, debug=debug, ssl_context=ssl_context)
 
 
 def create_app():

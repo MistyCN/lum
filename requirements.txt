@@ -9,3 +9,4 @@ flask
 deepface
 opencv-python
 tf-keras
+pyOpenSSL
