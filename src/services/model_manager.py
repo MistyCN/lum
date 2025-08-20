@@ -1,11 +1,11 @@
 import os
-from deepface import DeepFace
 from pathlib import Path
+from src.services.deepface_wrapper import analyze_face, get_deepface_home
 
 def ensure_models():
     """确保所需的模型文件已下载"""
     # DeepFace模型默认存储路径
-    base_model_path = os.path.join(Path.home(), ".deepface", "weights")
+    base_model_path = get_deepface_home()
     # 创建临时图片用于模型初始化
     temp_image_path = "temp_emotion.jpg"
     if not os.path.exists(temp_image_path):
@@ -15,11 +15,11 @@ def ensure_models():
         cv2.imwrite(temp_image_path, img)
     
     try:
-        if os.path.exists(base_model_path):
+        if not os.path.exists(base_model_path):
             print("首次运行，正在下载必要的模型...")
             os.makedirs(base_model_path, exist_ok=True)
             # 调用analyze会自动下载所需模型
-            DeepFace.analyze(
+            analyze_face(
                 temp_image_path,
                 actions=['emotion'],
                 enforce_detection=False

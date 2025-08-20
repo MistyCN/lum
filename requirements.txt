@@ -6,7 +6,9 @@ numpy
 baidu-aip
 python-dotenv
 flask
-deepface
+deepface>=0.0.79
 opencv-python
+tensorflow>=2.13.0
 tf-keras
 pyOpenSSL
+importlib-metadata>=6.0.0

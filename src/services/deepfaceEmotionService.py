@@ -1,7 +1,8 @@
 from typing import Dict
 import cv2
 import numpy as np
-from deepface import DeepFace
+from src.services.deepface_wrapper import analyze_face
+
 from src.services.baseEmotionService import BaseEmotionService
 from src.services.model_manager import ensure_models
 
@@ -23,22 +24,29 @@ class DeepfaceEmotionService(BaseEmotionService):
     def analyze_emotion(self, image_path: str) -> Dict:
         """分析图片中的表情"""
         try:
-            result = DeepFace.analyze(
+            result = analyze_face(
                 image_path,
                 actions=['emotion'],
                 enforce_detection=False
             )
-            if isinstance(result, list):
-                result = result[0]
-            emotions = {}
-            for emotion, value in result["emotion"].items():
-                if isinstance(value, (np.float32, np.float64)):
-                    emotions[emotion] = float(value)
-                else:
-                    emotions[emotion] = value
+            
+            if result is None:
+                return {
+                    "dominant_emotion": "unknown",
+                    "emotions": {
+                        "angry": 0,
+                        "disgust": 0,
+                        "fear": 0,
+                        "happy": 0,
+                        "sad": 0,
+                        "surprise": 0,
+                        "neutral": 0
+                    }
+                }
+            
             return {
                 "dominant_emotion": result["dominant_emotion"],
-                "emotions": emotions
+                "emotions": result["emotion"]
             }
             
         except Exception as e:
