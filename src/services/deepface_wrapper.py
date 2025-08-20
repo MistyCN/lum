@@ -4,39 +4,105 @@ import warnings
 import numpy as np
 import importlib.util
 import importlib.machinery
-
-def create_module(name):
-    """创建一个模拟的 imp 模块"""
-    class MockImp:
-        @staticmethod
-        def find_module(name, path=None):
-            if path is None:
-                path = sys.path
-            try:
-                # 使用新的 importlib API
-                spec = importlib.util.find_spec(name, path)
-                if spec is None:
-                    return None
-                return None, spec.origin, ('.py', 'r', importlib.machinery.SourceFileLoader)
-            except Exception:
-                return None
-        
-        @staticmethod
-        def load_module(name):
-            spec = importlib.util.find_spec(name)
-            if spec is None:
-                raise ImportError(f"No module named '{name}'")
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            return module
-
-    return MockImp()
+from pathlib import Path
+import time
 
 def init_deepface():
     """初始化 DeepFace 的兼容性包装"""
-    if sys.version_info >= (3, 12):
-        # 创建一个模拟的 imp 模块
-        sys.modules['imp'] = create_module('imp')
+    try:
+        # 禁用 TensorFlow 警告
+        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+        warnings.filterwarnings('ignore', category=DeprecationWarning)
+        warnings.filterwarnings('ignore', category=FutureWarning)
+        
+        # 确保使用正确的 keras 版本
+        if 'keras' in sys.modules:
+            del sys.modules['keras']
+        os.environ['KERAS_HOME'] = str(Path.home() / '.keras')
+        
+        from deepface import DeepFace
+        return DeepFace
+    except Exception as e:
+        print(f"DeepFace 初始化错误: {str(e)}")
+        raise
+
+def analyze_face(image_path, actions=['emotion'], enforce_detection=False, silent=True):
+    """
+    包装 DeepFace.analyze 函数，处理所有可能的兼容性问题
+    """
+    try:
+        if not os.path.exists(image_path):
+            raise FileNotFoundError(f"图片文件不存在: {image_path}")
+            
+        retries = 3
+        while retries > 0:
+            try:
+                DeepFace = init_deepface()
+                result = DeepFace.analyze(
+                    img_path=image_path,
+                    actions=actions,
+                    enforce_detection=enforce_detection,
+                    silent=silent
+                )
+                
+                # 确保结果是单个分析结果
+                if isinstance(result, list):
+                    result = result[0]
+                    
+                # 确保情绪值是普通的 Python float
+                if "emotion" in result:
+                    emotions = {}
+                    for emotion, value in result["emotion"].items():
+                        if isinstance(value, (np.float32, np.float64)):
+                            emotions[emotion] = float(value)
+                        else:
+                            emotions[emotion] = value
+                    result["emotion"] = emotions
+                    
+                return result
+            except Exception as e:
+                retries -= 1
+                if retries > 0:
+                    print(f"分析失败，正在重试... ({3-retries}/3)")
+                    time.sleep(1)
+                else:
+                    raise e
+                    
+    except Exception as e:
+        print(f"表情分析错误: {str(e)}")
+        print(f"错误类型: {type(e).__name__}")
+        return None
+
+def get_deepface_home():
+    """获取 DeepFace 模型存储路径"""
+    home = Path.home()
+    deepface_home = home / '.deepface'
+    weights_dir = deepface_home / 'weights'
+    return str(weights_dir)
+
+def ensure_model_downloaded():
+    """确保模型文件被正确下载"""
+    weights_dir = Path(get_deepface_home())
+    required_models = {
+        'emotion': ['facial_expression_model.h5'],
+        'face_detector': ['haarcascade_frontalface_default.xml'],
+    }
+    
+    # 确保目录存在
+    weights_dir.mkdir(parents=True, exist_ok=True)
+    
+    # 检查每个必需的模型文件
+    missing_models = []
+    for category, files in required_models.items():
+        category_dir = weights_dir / category
+        if not category_dir.exists():
+            missing_models.append(category)
+        else:
+            for file in files:
+                if not (category_dir / file).exists():
+                    missing_models.append(f"{category}/{file}")
+    
+    return len(missing_models) == 0
 
     # 现在可以安全地导入 DeepFace
     from deepface import DeepFace

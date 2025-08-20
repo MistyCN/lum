@@ -21,7 +21,7 @@ class CozeChatService(BaseChatService):
             yield {"type": "error", "message": "请输入有效的信息。"}
             return
         self.chatHistory.append({"role": "user", "content": userMessage})
-        context_messages = self._prepare_context_messages()
+        context_messages = self._prepareContextMessages()
         current = ''
         for event in self.coze.chat.stream(
             bot_id="7499749049093570598",
