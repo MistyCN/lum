@@ -21,6 +21,22 @@ class DeepfaceEmotionService(BaseEmotionService):
             "angry": 0.3     # 愤怒情绪阈值
         }
     
+    def normalize_emotions(self, emotions: Dict) -> Dict:
+        """归一化情绪值，确保所有情绪值在0-1之间，并且总和为1"""
+        # 确保所有值非负
+        normalized = {k: max(0, float(v)) for k, v in emotions.items()}
+        
+        # 计算总和
+        total = sum(normalized.values())
+        
+        # 如果总和为0，返回平均分布
+        if total == 0:
+            num_emotions = len(normalized)
+            return {k: 1.0/num_emotions for k in normalized}
+            
+        # 归一化处理
+        return {k: v/total for k, v in normalized.items()}
+
     def analyze_emotion(self, image_path: str) -> Dict:
         """分析图片中的表情"""
         try:
@@ -44,9 +60,15 @@ class DeepfaceEmotionService(BaseEmotionService):
                     }
                 }
             
+            # 归一化情绪值
+            normalized_emotions = self.normalize_emotions(result["emotion"])
+            
+            # 找出最大值对应的情绪
+            dominant_emotion = max(normalized_emotions.items(), key=lambda x: x[1])[0]
+            
             return {
-                "dominant_emotion": result["dominant_emotion"],
-                "emotions": result["emotion"]
+                "dominant_emotion": dominant_emotion,
+                "emotions": normalized_emotions
             }
             
         except Exception as e:
@@ -65,16 +87,57 @@ class DeepfaceEmotionService(BaseEmotionService):
             }
             
     def is_depressed(self, emotion_result: Dict) -> bool:
-        """判断是否呈现抑郁特征"""
+        """判断是否呈现抑郁特征
+        
+        Args:
+            emotion_result: analyze_emotion返回的分析结果
+            
+        Returns:
+            bool: 是否呈现抑郁特征
+        """
         emotions = emotion_result["emotions"]
+        negative_emotions = ["sad", "fear", "disgust", "angry"]
+        positive_emotions = ["happy", "surprise"]
+        
+        # 计算正面和负面情绪的总和
+        total_negative = sum(emotions.get(e, 0) for e in negative_emotions)
+        total_positive = sum(emotions.get(e, 0) for e in positive_emotions)
+        neutral = emotions.get("neutral", 0)
+        
+        reasons = []
+        risk_level = "low"
+        
+        # 检查各种抑郁特征
+        if total_negative > 0.5:  # 负面情绪占主导
+            reasons.append("负面情绪比重较高")
+            risk_level = "medium"
+            
+        if total_positive < 0.1 and neutral > 0.4:  # 积极情绪明显缺乏
+            reasons.append("积极情绪明显不足")
+            risk_level = "medium"
+            
+        # 检查具体的负面情绪是否超过阈值
         for emotion, threshold in self.depression_thresholds.items():
             if emotions.get(emotion, 0) >= threshold:
-                return True
-        if (emotions.get("neutral", 0) >= 0.8 and 
-            emotions.get("happy", 0) <= 0.1):
-            return True
-            
-        return False
+                if emotion == "sad":
+                    reasons.append("呈现明显的悲伤情绪")
+                    risk_level = "high"
+                else:
+                    reasons.append(f"呈现明显的{emotion}情绪")
+                    risk_level = "medium"
+        
+        # 特殊情况：长期性情绪平淡
+        if neutral >= 0.8 and total_positive <= 0.1:
+            reasons.append("情绪表现过于平淡")
+            risk_level = "medium"
+        
+        # 综合判断
+        is_depressed = len(reasons) > 0 and (
+            risk_level in ["medium", "high"] or
+            (total_negative > total_positive * 2 and total_negative > 0.3)
+        )
+        
+        return is_depressed
         
     def capture_and_analyze(self, camera_index: int = 0) -> Dict:
         """从摄像头捕获并分析表情

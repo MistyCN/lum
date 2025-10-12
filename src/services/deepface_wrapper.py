@@ -26,9 +26,9 @@ def init_deepface():
         print(f"DeepFace 初始化错误: {str(e)}")
         raise
 
-def analyze_face(image_path, actions=['emotion'], enforce_detection=False, silent=True):
+def analyze_face_with_retry(image_path, actions=['emotion'], enforce_detection=False, silent=True):
     """
-    包装 DeepFace.analyze 函数，处理所有可能的兼容性问题
+    包装 DeepFace.analyze 函数，处理所有可能的兼容性问题（带重试机制）
     """
     try:
         if not os.path.exists(image_path):
@@ -50,10 +50,10 @@ def analyze_face(image_path, actions=['emotion'], enforce_detection=False, silen
                     result = result[0]
                     
                 # 确保情绪值是普通的 Python float
-                if "emotion" in result:
+                if isinstance(result, dict) and "emotion" in result:
                     emotions = {}
                     for emotion, value in result["emotion"].items():
-                        if isinstance(value, (np.float32, np.float64)):
+                        if isinstance(value, np.floating):
                             emotions[emotion] = float(value)
                         else:
                             emotions[emotion] = value
@@ -73,7 +73,7 @@ def analyze_face(image_path, actions=['emotion'], enforce_detection=False, silen
         print(f"错误类型: {type(e).__name__}")
         return None
 
-def get_deepface_home():
+def get_deepface_weights_dir():
     """获取 DeepFace 模型存储路径"""
     home = Path.home()
     deepface_home = home / '.deepface'
@@ -82,7 +82,7 @@ def get_deepface_home():
 
 def ensure_model_downloaded():
     """确保模型文件被正确下载"""
-    weights_dir = Path(get_deepface_home())
+    weights_dir = Path(get_deepface_weights_dir())
     required_models = {
         'emotion': ['facial_expression_model.h5'],
         'face_detector': ['haarcascade_frontalface_default.xml'],
@@ -128,10 +128,10 @@ def analyze_face(image_path, actions=['emotion'], enforce_detection=False):
             result = result[0]
             
         # 确保情绪值是普通的 Python float
-        if "emotion" in result:
+        if isinstance(result, dict) and "emotion" in result:
             emotions = {}
             for emotion, value in result["emotion"].items():
-                if isinstance(value, (np.float32, np.float64)):
+                if isinstance(value, np.floating):
                     emotions[emotion] = float(value)
                 else:
                     emotions[emotion] = value

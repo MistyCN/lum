@@ -5,6 +5,9 @@ record.wav
 # deepface模型忽略
 .deepface/weights
 
+# 演示相关忽略
+presentations/*
+
 # https证书忽略
 certs/*
 

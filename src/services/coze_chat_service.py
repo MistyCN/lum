@@ -10,17 +10,20 @@ class CozeChatService(BaseChatService):
     def __init__(self):
         self.config = Config()
         self.chatHistory = []
+        token = self.config.cozeApiToken if self.config.cozeApiToken is not None else ""
+        if not token:
+            raise ValueError("Coze API token is missing. Please set cozeApiToken in the configuration.")
         self.coze = Coze(
-            auth=TokenAuth(token=self.config.cozeApiToken),
+            auth=TokenAuth(token=token),
             base_url=COZE_CN_BASE_URL
         )
     
-    def processStreamMessage(self, userMessage: str) -> Generator:
+    def processStreamMessage(self, message: str) -> Generator:
         """处理流式消息"""
-        if not userMessage:
+        if not message:
             yield {"type": "error", "message": "请输入有效的信息。"}
             return
-        self.chatHistory.append({"role": "user", "content": userMessage})
+        self.chatHistory.append({"role": "user", "content": message})
         context_messages = self._prepareContextMessages()
         current = ''
         for event in self.coze.chat.stream(
@@ -29,14 +32,15 @@ class CozeChatService(BaseChatService):
             additional_messages=context_messages
         ):
             if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
-                print(event.message.content, end="", flush=True)
-                current += event.message.content
-                yield {"type": "normal", "message": event.message.content}
+                if event.message is not None and hasattr(event.message, "content"):
+                    print(event.message.content, end="", flush=True)
+                    current += event.message.content
+                    yield {"type": "normal", "message": event.message.content}
         self.chatHistory.append({"role": "assistant", "content": current})
 
-    def processMessage(self, userMessage: str) -> str:
+    def processMessage(self, message: str) -> str:
         """处理单条消息"""
-        m = self.processStreamMessage(userMessage)
+        m = self.processStreamMessage(message)
         sum = ""
         for each in m:
             sum += each.get('message', '')

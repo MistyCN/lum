@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List
 import openai
+from openai.types.chat import ChatCompletionSystemMessageParam, ChatCompletionUserMessageParam
 from ..config import Config
 
 class BaseAnalysisService(ABC):
@@ -34,21 +35,20 @@ class DeepseekAnalysisService(BaseAnalysisService):
         ])
         
     def analyze_danger(self, history_messages: List[Dict]) -> str:
-        """分析对话中的危险内容"""
         messages = [
-            {
-                "role": "system",
-                "content": """
+            ChatCompletionSystemMessageParam(
+                role="system",
+                content="""
                 现有一个心理分析项目，目前检测到了用户存在心理危机,
                 你需要分析用户和机器人的对话，为"介入的专业人士"给出总结和处理建议。
                 要求: 1.结合专业心理学知识回答 
                      2.字数控制在200字左右（历史总结占100字左右），适度分行便于阅读
                 """
-            },
-            {
-                "role": "user",
-                "content": self._format_history(history_messages)
-            }
+            ),
+            ChatCompletionUserMessageParam(
+                role="user",
+                content=self._format_history(history_messages)
+            )
         ]
         
         print("Deepseek危机分析中...")
@@ -58,19 +58,18 @@ class DeepseekAnalysisService(BaseAnalysisService):
             temperature=1.0
         )
         
-        return response.choices[0].message.content
+        return response.choices[0].message.content if response.choices[0].message.content is not None else ""
         
     def analyze_preferences(self, history_messages: List[Dict]) -> Dict:
-        """分析用户偏好"""
         messages = [
-            {
-                "role": "system",
-                "content": "请分析聊天历史，总结用户的话题偏好、性格特点等信息。"
-            },
-            {
-                "role": "user",
-                "content": self._format_history(history_messages)
-            }
+            ChatCompletionSystemMessageParam(
+                role="system",
+                content="请分析聊天历史，总结用户的话题偏好、性格特点等信息。"
+            ),
+            ChatCompletionUserMessageParam(
+                role="user",
+                content=self._format_history(history_messages)
+            )
         ]
         
         response = self.client.chat.completions.create(
@@ -79,4 +78,11 @@ class DeepseekAnalysisService(BaseAnalysisService):
             temperature=0.7
         )
         
-        return response.choices[0].message.content
+        import json
+        content = response.choices[0].message.content
+        if content is None:
+            return {}
+        try:
+            return json.loads(content)
+        except Exception:
+            return {"summary": content}

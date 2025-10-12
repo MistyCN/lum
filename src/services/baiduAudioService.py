@@ -40,8 +40,11 @@ class BaiduAudioService(BaseAudioService):
         })
         
         if not isinstance(result, dict):
-            with open(output_file, 'wb') as f:
-                f.write(result)
+            if isinstance(result, bytes):
+                with open(output_file, 'wb') as f:
+                    f.write(result)
+            else:
+                print("语音合成失败，返回内容:", result)
                 
     def play_audio(self, audio_file: str) -> None:
         """播放音频"""

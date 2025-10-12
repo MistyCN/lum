@@ -85,6 +85,8 @@ class WebApp:
     def receiveData(self):
         """处理接收到的危险数据"""
         data = request.json
+        if data is None or not isinstance(data, dict):
+            return jsonify({"status": "error", "message": "无效的数据"}), 400
         self.signalService.add_signal(data)
         return jsonify({"status": "success"})
         
@@ -95,7 +97,7 @@ class WebApp:
     def chatApi(self):
         """处理聊天请求"""
         data = request.json
-        userMessage = data.get('message')
+        userMessage = data.get('message') if data else None
         if not userMessage:
             return jsonify({'response': "请输入有效的信息。"})
             
@@ -116,7 +118,7 @@ class WebApp:
     def streamChatApi(self):
         """处理流式聊天请求"""
         data = request.json
-        userMessage = data.get('message')
+        userMessage = data.get('message') if data else None
         if not userMessage:
             return jsonify({'response': "请输入有效的信息。"})
         
@@ -189,13 +191,14 @@ class WebApp:
             image_path = "temp_emotion.jpg"
             image.save(image_path)
             result = self.emotionService.analyze_emotion(image_path)
-            if self.emotionService.is_depressed(result):
-                self.signalService.add_emotion_signal(result)
+            depressed_data = self.emotionService.is_depressed(result)
+            if isinstance(depressed_data, dict) and depressed_data:
+                self.signalService.add_emotion_signal(result, depressed_data)
                 
             return jsonify({
                 'status': 'success',
                 'result': result,
-                'is_depressed': self.emotionService.is_depressed(result)
+                'is_depressed': depressed_data
             }), 200
             
         except Exception as e:
@@ -206,13 +209,15 @@ class WebApp:
         """从摄像头捕获并分析表情"""
         try:
             result = self.emotionService.capture_and_analyze()
-            if self.emotionService.is_depressed(result):
-                self.signalService.add_emotion_signal(result)
+            depressed_data = self.emotionService.is_depressed(result)
+            # 仅当 depressed_data 为 dict 且非空时才调用 add_emotion_signal
+            if isinstance(depressed_data, dict) and depressed_data:
+                self.signalService.add_emotion_signal(result, depressed_data)
                 
             return jsonify({
                 'status': 'success',
                 'result': result,
-                'is_depressed': self.emotionService.is_depressed(result)
+                'is_depressed': depressed_data
             }), 200
             
         except Exception as e:
