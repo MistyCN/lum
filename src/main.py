@@ -42,12 +42,12 @@ class LuminestCLI:
         print("<<", text)
         
         # 处理消息
-        result = json.loads(self.chat_service.process_message(text))
+        result = json.loads(self.chat_service.processMessage(text))
         
         # 检查是否需要危险处理
         if result["type"] == "dangerous":
             print("检测到危险信息,开始危险处理")
-            history = self.chat_service.get_chat_history()
+            history = self.chat_service.getChatHistory()
             analysis = self.analysis_service.analyze_danger(history)
             self.signal_service.add_dangerous_chat("测试ID", text, analysis)
             
