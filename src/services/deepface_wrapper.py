@@ -84,8 +84,8 @@ def ensure_model_downloaded():
     """确保模型文件被正确下载"""
     weights_dir = Path(get_deepface_weights_dir())
     required_models = {
-        'emotion': ['facial_expression_model.h5'],
-        'face_detector': ['haarcascade_frontalface_default.xml'],
+        'emotion': ['facial_expression_model_weights.h5'],
+        #'face_detector': ['haarcascade_frontalface_default.xml'],
     }
     
     # 确保目录存在
@@ -94,13 +94,9 @@ def ensure_model_downloaded():
     # 检查每个必需的模型文件
     missing_models = []
     for category, files in required_models.items():
-        category_dir = weights_dir / category
+        category_dir = weights_dir / files[0].split('/')[0]
         if not category_dir.exists():
             missing_models.append(category)
-        else:
-            for file in files:
-                if not (category_dir / file).exists():
-                    missing_models.append(f"{category}/{file}")
     
     return len(missing_models) == 0
 

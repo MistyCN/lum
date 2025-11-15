@@ -192,8 +192,8 @@ class WebApp:
             image.save(image_path)
             result = self.emotionService.analyze_emotion(image_path)
             depressed_data = self.emotionService.is_depressed(result)
-            if isinstance(depressed_data, dict) and depressed_data:
-                self.signalService.add_emotion_signal(result, depressed_data)
+            if isinstance(depressed_data, bool) and depressed_data:
+                self.signalService.add_emotion_signal(result, )
                 
             return jsonify({
                 'status': 'success',
@@ -211,8 +211,8 @@ class WebApp:
             result = self.emotionService.capture_and_analyze()
             depressed_data = self.emotionService.is_depressed(result)
             # 仅当 depressed_data 为 dict 且非空时才调用 add_emotion_signal
-            if isinstance(depressed_data, dict) and depressed_data:
-                self.signalService.add_emotion_signal(result, depressed_data)
+            if isinstance(depressed_data, bool) and depressed_data:
+                self.signalService.add_emotion_signal(result)
                 
             return jsonify({
                 'status': 'success',

@@ -13,6 +13,7 @@ certs/*
 
 # 表情识别临时照片忽略
 temp_emotion.jpg
+temp_capture.jpg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

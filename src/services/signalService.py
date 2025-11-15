@@ -16,12 +16,11 @@ class SignalService(BaseSignalService):
         self.signals_file = signals_file
         self.load_signals()
         
-    def add_emotion_signal(self, emotion_data: Dict, depressed_data: Dict) -> None:
+    def add_emotion_signal(self, emotion_data: Dict) -> None:
         """添加表情分析危险信号
         
         Args:
             emotion_data: 表情分析结果
-            depressed_data: 抑郁分析结果
         """
         signal = {
             "type": "emotion",
@@ -32,7 +31,7 @@ class SignalService(BaseSignalService):
                 "dominant_emotion": emotion_data["dominant_emotion"],
                 "emotions": emotion_data["emotions"]
             },
-            "analyze": f"用户表情呈现出抑郁特征，抑郁风险：{depressed_data['risk_level']}，原因：{depressed_data['reasons']}"
+            "analyze": f"用户表情呈现出抑郁特征，请关注用户情绪健康。"
         }
         self.add_signal(signal)
         

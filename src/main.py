@@ -6,6 +6,7 @@ from src.services.coze_chat_service import CozeChatService
 from src.services.signalService import SignalService
 from src.services.analysisService import DeepseekAnalysisService
 from src.services.baiduAudioService import BaiduAudioService
+from src.services.deepfaceEmotionService import DeepfaceEmotionService
 import json
 
 class LuminestCLI:
@@ -16,6 +17,7 @@ class LuminestCLI:
         self.signal_service = SignalService()
         self.analysis_service = DeepseekAnalysisService()
         self.audio_service = BaiduAudioService()
+        self.emotion_service = DeepfaceEmotionService()
         self.running = True
         
     def run(self):
@@ -40,6 +42,13 @@ class LuminestCLI:
         # 语音转文字
         text = self.audio_service.speech_to_text("record.wav")
         print("<<", text)
+        
+        # 分析情感
+        result = self.emotion_service.capture_and_analyze()
+        depressed_data = self.emotion_service.is_depressed(result)
+            # 仅当 depressed_data 为 dict 且非空时才调用 add_emotion_signal
+        if isinstance(depressed_data, bool) and depressed_data:
+            self.signal_service.add_emotion_signal(result)
         
         # 处理消息
         result = json.loads(self.chat_service.processMessage(text))

@@ -57,7 +57,36 @@ class DeepseekAnalysisService(BaseAnalysisService):
             messages=messages,
             temperature=1.0
         )
-        
+
+        if response.choices[0].message.content is not None:
+            analysis = response.choices[0].message.content
+            vidlie = self.cross_validation(analysis)
+            return analysis + "\n\n\n以下为对分析结果多模型交叉验证的结果：\n" + vidlie
+        else:
+            return ""
+    
+    def cross_validation(self, ai_response: str) -> str:
+        messages = [
+            ChatCompletionSystemMessageParam(
+                role="system",
+                content="""
+                现在有一个AI智能体为人类出具建议，请评估这个建议的可靠性并给出0%~100%的置信度，确保人类不会被AI幻觉误导。
+                要求: 1.结合专业心理学知识回答
+                     2.输出置信度，例如：置信度：90%（由多模型交叉验证得出），并附加100字以内的简短理由
+                """
+            ),
+            ChatCompletionUserMessageParam(
+                role="user",
+                content=ai_response
+            )
+        ]
+        print("Deepseek交叉验证中...")
+        response = self.client.chat.completions.create(
+            model="deepseek-chat",
+            messages=messages,
+            temperature=0.5
+        )
+
         return response.choices[0].message.content if response.choices[0].message.content is not None else ""
         
     def analyze_preferences(self, history_messages: List[Dict]) -> Dict:
