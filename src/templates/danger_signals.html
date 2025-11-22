@@ -12,8 +12,9 @@
     <div class="sidebar">
         <h2>Luminetst工作坊</h2>
         <a href="/">首页</a>
-        <a href="/danger_signals">危险信息监测</a>
+        <a href="/assessment">综合评估</a>
         <a href="/chat">对话测试</a>
+        <a href="/danger_signals" class="active">危险信息监测</a>
         <a href="/emotion_monitor">表情监控</a>
     </div>
 
@@ -26,7 +27,7 @@
         </div>
     </div>
     <button class="refresh-button" onclick="fetchSignals()" title="刷新数据">
-        <span class="material-icons">refresh</span>
+        <span class="material-icons">刷新数据</span>
     </button>
 
     <script>
@@ -52,8 +53,7 @@
                         card.style.animationDelay = `${index * 0.1}s`;
                         card.innerHTML = `
                             <h3>
-                                <span class="material-icons">person</span>
-                                用户ID: ${signal.user_id || '未知'}
+                                <span class="material-icons">用户ID: ${signal.user_id || '未知'}</span>
                             </h3>
                             <div class="signal-meta">
                                 <span class="signal-time">
@@ -63,13 +63,11 @@
                             </div>
                             <div class="signal-content">
                                 <h4>
-                                    <span class="material-icons">chat</span>
-                                    聊天记录
+                                    <span class="material-icons">聊天记录</span>
                                 </h4>
                                 <pre>${signal.trigger_message || '无记录'}</pre>
                                 <h4>
-                                    <span class="material-icons">psychology</span>
-                                    用户分析
+                                    <span class="material-icons">用户分析</span>
                                 </h4>
                                 <pre>${signal.analyze || '无分析'}</pre>
                             </div>

@@ -40,11 +40,13 @@ class WebApp:
         # 页面路由
         self.app.add_url_rule('/', 'index', self.index)
         self.app.add_url_rule('/dashboard', 'dashboard', self.dashboard)
+        self.app.add_url_rule('/assessment', 'assessment', self.assessment)
         self.app.add_url_rule('/danger_signals', 'dangerSignals', self.dangerSignals)
         self.app.add_url_rule('/chat', 'chatPage', self.chatPage)
         self.app.add_url_rule('/user_operations', 'userOperations', self.userOperations)
         self.app.add_url_rule('/client_chat', 'clientChat', self.clientChat)
         self.app.add_url_rule('/emotion_monitor', 'emotionMonitor', self.emotionMonitor)
+
         
         # API路由
         self.app.add_url_rule('/api/receive', 'receiveData', self.receiveData, methods=['POST'])
@@ -56,6 +58,64 @@ class WebApp:
         self.app.add_url_rule('/api/analyze', 'analyzePreferences', self.analyzePreferences, methods=['GET'])
         self.app.add_url_rule('/api/analyze_emotion', 'analyzeEmotion', self.analyzeEmotion, methods=['POST'])
         self.app.add_url_rule('/api/capture_emotion', 'captureEmotion', self.captureEmotion, methods=['POST'])
+        self.app.add_url_rule('/api/chat_history', 'getChatHistory', self.getChatHistory, methods=['GET'])
+        self.app.add_url_rule('/api/emotions', 'getEmotions', self.getEmotions, methods=['GET'])
+        self.app.add_url_rule('/api/ai_danger_keywords', 'aiDangerKeywords', self.ai_danger_keywords, methods=['POST'])
+        self.app.add_url_rule('/api/ai_crisis_index', 'aiCrisisIndex', self.ai_crisis_index, methods=['POST'])
+        self.app.add_url_rule('/api/clear_chats', 'clearChats', self.clear_chats, methods=['POST'])
+        self.app.add_url_rule('/api/clear_emotions', 'clearEmotions', self.clear_emotions, methods=['POST'])
+        self.app.add_url_rule('/api/clear_signals', 'clearSignals', self.clear_signals, methods=['POST'])
+        self.app.add_url_rule('/api/clear_preferences', 'clearPreferences', self.clear_preferences, methods=['POST'])
+
+
+    def getChatHistory(self):
+        """返回所有聊天记录（用于综合评估页面统计）"""
+        try:
+            if self.chatService.data_service is not None:
+                chats = self.chatService.data_service.get_chats()
+                return jsonify(chats)
+            else:
+                print("chatService.data_service 未初始化")
+                return jsonify([])
+        except Exception as e:
+            print(f"获取聊天记录时出错: {str(e)}")
+            return jsonify([])
+
+    def getEmotions(self):
+        """返回所有表情识别记录（用于综合评估页面统计）"""
+        try:
+            if self.emotionService.data_service is not None:
+                emotions = self.emotionService.data_service.get_emotions()
+                return jsonify(emotions)
+            else:
+                print("emotionService.data_service 未初始化")
+                return jsonify([])
+        except Exception as e:
+            print(f"获取表情记录时出错: {str(e)}")
+            return jsonify([])
+        
+    def ai_danger_keywords(self):
+        """AI分析用户危机关键词，POST传入聊天历史"""
+        try:
+            data = request.get_json()
+            history = data.get('history', []) if data else []
+            keywords = self.analysisService.analyze_danger_keywords(history)
+            return jsonify({'keywords': keywords})
+        except Exception as e:
+            print(f"AI危机关键词分析失败: {str(e)}")
+            return jsonify({'keywords': ''})
+
+    def ai_crisis_index(self):
+        """AI综合分析生成心理危机指数并返回结构化结果"""
+        try:
+            data = request.get_json()
+            history = data.get('history', []) if data else []
+            emotions = data.get('emotions', []) if data else []
+            result = self.analysisService.analyze_crisis_index(history, emotions)
+            return jsonify(result)
+        except Exception as e:
+            print(f"AI危机指数分析失败: {str(e)}")
+            return jsonify({"score":0, "interpretation":"分析失败","features":[],"explanation":"","suggestions":"","validation":""})
         
     # 页面路由处理
     def index(self):
@@ -66,7 +126,11 @@ class WebApp:
         
     def dangerSignals(self):
         return render_template('danger_signals.html')
-        
+    
+    def assessment(self):
+        """综合评估页面"""
+        return render_template('assessment.html')
+    
     def chatPage(self):
         return render_template('chat.html')
         
@@ -103,14 +167,28 @@ class WebApp:
             
         try:
             result = self.chatService.processMessage(userMessage)
-            resultDict = json.loads(result)
-            
-            if resultDict['type'] == 'dangerous':
+            # 解析 AI 返回内容：优先当作 JSON 解析，若失败则当作普通文本
+            try:
+                resultDict = json.loads(result)
+            except json.JSONDecodeError:
+                # 尝试对可能包含原始换行符的 JSON 做安全转义再解析
+                try:
+                    sanitized = result.replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
+                    resultDict = json.loads(sanitized)
+                except Exception:
+                    # 退回为普通文本响应
+                    resultDict = {'type': 'text', 'message': result}
+
+            if resultDict.get('type') == 'dangerous':
                 history = self.chatService.getChatHistory()
-                historyStr = "\n".join([f"{msg['role']}:{msg['content']}" for msg in history])
+                # 将历史按可用字段格式化为字符串（兼容 message/content）
+                historyStr = "\n".join([
+                    f"{msg.get('role')}:{msg.get('message') or msg.get('content', '')}"
+                    for msg in history
+                ])
                 analysis = self.analysisService.analyze_danger(history)
                 self.signalService.add_dangerous_chat("测试ID", userMessage, analysis)
-            return jsonify({'response': resultDict['message']})
+            return jsonify({'response': resultDict.get('message', str(result))})
         except Exception as e:
             print(f"Error in chat API: {str(e)}")
             return jsonify({'response': "抱歉，处理您的消息时出现错误，请稍后重试。"})
@@ -125,7 +203,7 @@ class WebApp:
         def generate():
             try:
                 history = self.chatService.getChatHistory()
-                historyStr = "\n".join([f"{msg['role']}:{msg['content']}" for msg in history])
+                historyStr = "\n".join([f"{msg.get('role')}:{msg.get('message') or msg.get('content','')}" for msg in history])
                 for chunk in self.chatService.processStreamMessage(userMessage):
                     try:
                         jsonData = chunk if isinstance(chunk, dict) else json.loads(chunk)
@@ -166,6 +244,57 @@ class WebApp:
         except Exception as e:
             print(f'删除聊天记录时出错: {str(e)}')
             return jsonify({'status': 'error', 'message': '删除聊天记录时出错，请稍后重试'}), 500
+
+    def clear_chats(self):
+        """API: 清空聊天记录（并持久化）"""
+        try:
+            self.chatService.deleteChatHistory()
+            return jsonify({'status': 'success', 'message': '聊天记录已清空'}), 200
+        except Exception as e:
+            print(f'清空聊天记录时出错: {str(e)}')
+            return jsonify({'status': 'error', 'message': '清空聊天记录失败'}), 500
+
+    def clear_emotions(self):
+        """API: 清空表情识别记录文件"""
+        try:
+            if self.emotionService.data_service is not None:
+                self.emotionService.data_service._write_json(self.emotionService.data_service.emotions_file, [])
+                return jsonify({'status': 'success', 'message': '表情识别记录已清空'}), 200
+            else:
+                return jsonify({'status': 'error', 'message': 'emotion data service 未初始化'}), 500
+        except Exception as e:
+            print(f'清空表情记录时出错: {str(e)}')
+            return jsonify({'status': 'error', 'message': '清空表情记录失败'}), 500
+
+    def clear_signals(self):
+        """API: 清空危机信号"""
+        try:
+            self.signalService.clear_signals()
+            try:
+                self.signalService.save_signals()
+            except Exception:
+                pass
+            return jsonify({'status': 'success', 'message': '危机信号已清空'}), 200
+        except Exception as e:
+            print(f'清空危机信号时出错: {str(e)}')
+            return jsonify({'status': 'error', 'message': '清空危机信号失败'}), 500
+
+    def clear_preferences(self):
+        """API: 清空用户喜好（删除 preference.json）"""
+        try:
+            pref_file = 'preference.json'
+            if os.path.exists(pref_file):
+                try:
+                    os.remove(pref_file)
+                except Exception:
+                    # 退回为写入空对象
+                    with open(pref_file, 'w', encoding='utf-8') as f:
+                        json.dump({}, f, ensure_ascii=False, indent=4)
+            self.preferences = {}
+            return jsonify({'status': 'success', 'message': '用户喜好已清空'}), 200
+        except Exception as e:
+            print(f'清空用户喜好时出错: {str(e)}')
+            return jsonify({'status': 'error', 'message': '清空用户喜好失败'}), 500
             
     def analyzePreferences(self):
         """分析用户喜好"""

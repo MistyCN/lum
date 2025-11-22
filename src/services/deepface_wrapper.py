@@ -19,6 +19,8 @@ def init_deepface():
         if 'keras' in sys.modules:
             del sys.modules['keras']
         os.environ['KERAS_HOME'] = str(Path.home() / '.keras')
+
+        reload_six = importlib.reload
         
         from deepface import DeepFace
         return DeepFace

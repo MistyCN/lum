@@ -1,8 +1,11 @@
 import os
+from typing import Optional
 import wave
 import pyaudio
 import pygame
 from aip import AipSpeech
+import tempfile
+import time
 from src.services.baseAudioService import BaseAudioService
 from src.config import Config
 
@@ -38,19 +41,56 @@ class BaiduAudioService(BaseAudioService):
             'pit': 5,
             'aue': 3,
         })
-        
+        # 将合成音频写入临时文件以避免文件锁冲突
         if not isinstance(result, dict):
             if isinstance(result, bytes):
-                with open(output_file, 'wb') as f:
-                    f.write(result)
+                # 使用临时文件，确保每次调用文件名唯一，避免被播放器锁定
+                tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.mp3', prefix='luminest_', dir=None)
+                try:
+                    tmp.write(result)
+                    tmp.flush()
+                    tmp.close()
+                    # 记录最新生成的临时文件，供播放使用
+                    self._last_tts_file = tmp.name
+                    return None
+                except Exception as e:
+                    try:
+                        tmp.close()
+                    except Exception:
+                        pass
+                    print(f"写入临时音频文件失败: {e}")
+                    return None
             else:
                 print("语音合成失败，返回内容:", result)
+                return None
                 
     def play_audio(self, audio_file: str) -> None:
         """播放音频"""
-        pygame.mixer.init()
-        pygame.mixer.music.load(audio_file)
-        pygame.mixer.music.play()
+        # 初始化并播放，然后等待播放结束再退出mixer，最后尝试删除临时文件
+        try:
+            pygame.mixer.init()
+            pygame.mixer.music.load(audio_file)
+            pygame.mixer.music.play()
+            # 等待播放结束
+            while pygame.mixer.music.get_busy():
+                pygame.time.Clock().tick(10)
+        except Exception as e:
+            print(f"播放音频出错: {e}")
+        finally:
+            try:
+                pygame.mixer.music.stop()
+            except Exception:
+                pass
+            try:
+                pygame.mixer.quit()
+            except Exception:
+                pass
+            # 尝试删除文件（通常是临时文件）
+            try:
+                if audio_file and os.path.exists(audio_file):
+                    os.remove(audio_file)
+            except Exception:
+                pass
         
     def record_audio(self, output_file: str) -> None:
         """录制音频"""

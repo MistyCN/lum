@@ -7,13 +7,20 @@ from src.services.baseSignalService import BaseSignalService
 class SignalService(BaseSignalService):
     """危险信号服务实现"""
     
-    def __init__(self, signals_file: str = "signals.json"):
+    def __init__(self, signals_file: str = os.path.join("data", "signals.json")):
         """
         初始化危险信号服务
         :param signals_file: 信号存储文件路径
         """
         self.signals: List[Dict] = []
         self.signals_file = signals_file
+        # 确保目录存在
+        try:
+            dir_path = os.path.dirname(self.signals_file)
+            if dir_path:
+                os.makedirs(dir_path, exist_ok=True)
+        except Exception:
+            pass
         self.load_signals()
         
     def add_emotion_signal(self, emotion_data: Dict) -> None:
@@ -26,7 +33,7 @@ class SignalService(BaseSignalService):
             "type": "emotion",
             "user_id": "",
             "trigger_message": emotion_data["dominant_emotion"],
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "timestamp": datetime.now().isoformat(),
             "data": {
                 "dominant_emotion": emotion_data["dominant_emotion"],
                 "emotions": emotion_data["emotions"]

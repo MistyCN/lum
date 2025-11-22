@@ -1,10 +1,13 @@
 from typing import Dict
 import cv2
 import numpy as np
+import os
+from datetime import datetime
 from src.services.deepface_wrapper import analyze_face
 
 from src.services.baseEmotionService import BaseEmotionService
 from src.services.model_manager import ensure_models
+from src.services.dataService import DataService
 
 class DeepfaceEmotionService(BaseEmotionService):
     """基于Deepface的表情分析服务实现"""
@@ -13,6 +16,12 @@ class DeepfaceEmotionService(BaseEmotionService):
         """初始化表情分析服务"""
         # 确保模型已下载
         ensure_models()
+        # DataService 用于持久化表情识别记录，保存在 data/emotion
+        try:
+            self.data_service = DataService()
+        except Exception:
+            # 若初始化失败，仍确保属性存在以避免后续报错
+            self.data_service = None
         # 抑郁倾向判断阈值
         self.depression_thresholds = {
             "sad": 0.4,      # 悲伤情绪阈值
@@ -65,7 +74,21 @@ class DeepfaceEmotionService(BaseEmotionService):
             
             # 找出最大值对应的情绪
             dominant_emotion = max(normalized_emotions.items(), key=lambda x: x[1])[0]
-            
+            # 保存识别结果到 DataService（非阻塞）
+            try:
+                record = {
+                    "user_id": "",
+                    "dominant_emotion": dominant_emotion,
+                    "emotions": normalized_emotions,
+                    "timestamp": datetime.now().isoformat()
+                }
+                if self.data_service is not None:
+                    # DataService.save_emotion 会补充 timestamp
+                    self.data_service.save_emotion(record)
+            except Exception as e:
+                # 保存失败不影响主流程
+                print(f"保存表情记录失败: {e}")
+
             return {
                 "dominant_emotion": dominant_emotion,
                 "emotions": normalized_emotions

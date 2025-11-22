@@ -8,6 +8,7 @@ from src.services.analysisService import DeepseekAnalysisService
 from src.services.baiduAudioService import BaiduAudioService
 from src.services.deepfaceEmotionService import DeepfaceEmotionService
 import json
+import os
 
 class LuminestCLI:
     """Luminest命令行界面类"""
@@ -60,10 +61,19 @@ class LuminestCLI:
             analysis = self.analysis_service.analyze_danger(history)
             self.signal_service.add_dangerous_chat("测试ID", text, analysis)
             
-        # 文字转语音并播放
+        # 文字转语音并播放（使用临时文件避免文件锁）
         self.audio_service.text_to_speech(result["message"])
         print(">>", result["message"])
-        self.audio_service.play_audio("output.mp3")
+        # 尝试使用上一次生成的临时文件播放
+        audio_file = getattr(self.audio_service, '_last_tts_file', None)
+        if audio_file and os.path.exists(audio_file):
+            self.audio_service.play_audio(audio_file)
+        else:
+            # 兼容回退：尝试播放默认文件名
+            try:
+                self.audio_service.play_audio('output.mp3')
+            except Exception:
+                pass
 
 def main():
     """主程序入口"""
