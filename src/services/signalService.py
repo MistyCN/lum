@@ -49,9 +49,13 @@ class SignalService(BaseSignalService):
         """
         if not isinstance(signal, dict):
             raise ValueError("信号数据必须是字典类型")
-        print("收到了新的危机信号")
+        print("收到了新的危机信号:", signal.get('type'), signal.get('trigger_message'))
         self.signals.append(signal)
-        self.save_signals()
+        try:
+            self.save_signals()
+        except Exception as e:
+            # 保存失败时打印错误，但不要抛出异常以免影响调用者（例如流式处理器）
+            print(f"保存危险信号失败: {e}")
         
     def add_dangerous_chat(self, user_id: str, content: str, analysis: str) -> None:
         """
@@ -83,7 +87,8 @@ class SignalService(BaseSignalService):
                 json.dump(self.signals, f, ensure_ascii=False, indent=4)
         except Exception as e:
             print(f"保存危险信号时出错: {str(e)}")
-            raise
+            # 不抛出异常，保证调用流程稳定
+            return
             
     def load_signals(self) -> None:
         """从文件加载信号"""

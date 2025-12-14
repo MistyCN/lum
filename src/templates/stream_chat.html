@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>流式对话 - Luminest</title>
+  <style>
+    body{font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background: #f5f7fa; margin:20px}
+    .chat-container{max-width:980px;margin:0 auto}
+    h2{color:#0f172a;margin-bottom:12px}
+    .card{background:#fff;border-radius:10px;box-shadow:0 6px 18px rgba(20,30,50,0.06);padding:12px}
+    .messages{border-radius:8px;padding:12px;height:460px;overflow:auto;background:linear-gradient(180deg,#ffffff,#fbfdff);border:1px solid #eef3f8}
+    .msg{margin:10px 0;display:flex;align-items:flex-end}
+    .msg.user{justify-content:flex-end}
+    .msg.ai{justify-content:flex-start}
+    .avatar{width:36px;height:36px;border-radius:50%;display:inline-block;margin:0 8px}
+    .bubble{display:inline-block;padding:10px 14px;border-radius:14px;max-width:75%;line-height:1.35}
+    .bubble.user{background:linear-gradient(90deg,#3b82f6,#2563eb);color:#fff}
+    .bubble.ai{background:#f1f5f9;color:#0f172a;border:1px solid #e2e8f0}
+    .metaRow{display:flex;gap:8px;align-items:center}
+    .composer{display:flex;gap:8px;margin-top:12px}
+    .composer input[type='text']{flex:1;padding:12px;border:1px solid #e6eef6;border-radius:8px}
+    .composer button{padding:10px 14px;border-radius:8px;border:none;background:#0ea5a6;color:#fff;cursor:pointer}
+    .composer button.secondary{background:#64748b}
+    .meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+    .status{font-size:13px;color:#64748b}
+    .errorLog{color:#7f1d1d;background:#fff1f2;padding:8px;border-radius:6px;border:1px solid #fecaca}
+    .timestamp{font-size:11px;color:#94a3b8;margin-left:8px}
+    .small{font-size:12px;color:#6b7280}
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <h2>流式对话</h2>
+    <div class="card">
+      <div class="topbar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <!-- 内联 SVG 替代外部 logo 文件，避免 404 请求 -->
+          <svg width="40" height="40" viewBox="0 0 48 48" aria-hidden="true" style="border-radius:8px;overflow:visible;box-shadow:0 4px 12px rgba(16,24,40,0.08)">
+            <defs>
+              <linearGradient id="g1" x1="0" x2="1">
+                <stop offset="0%" stop-color="#34d399" />
+                <stop offset="100%" stop-color="#06b6d4" />
+              </linearGradient>
+            </defs>
+            <rect x="2" y="2" width="44" height="44" rx="8" fill="url(#g1)" />
+            <g transform="translate(6,6) scale(0.7)" fill="#fff">
+              <path d="M10 2 L20 2 L22 8 L16 18 L10 8 Z" opacity="0.95" />
+            </g>
+          </svg>
+          <div style="font-weight:600;color:#0f172a">实时对话（语音+流式回复）</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button id="backendBtn" class="secondary" title="发送后台请求并返回主页">保存并返回主页</button>
+        </div>
+      </div>
+      <div class="messages" id="messages" aria-live="polite"></div>
+      <div class="composer">
+        <button id="recordBtn" class="secondary">🎤 语音输入</button>
+        <input type="text" id="inputBox" placeholder="输入讯息然后按发送，或点击语音输入并对话..." aria-label="消息输入" />
+        <button id="sendBtn">发送</button>
+      </div>
+      <div class="meta">
+          <div class="status" id="status">就绪</div>
+          <div id="errorLog" class="errorLog" hidden></div>
+        </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const messagesEl = document.getElementById('messages');
+  const inputBox = document.getElementById('inputBox');
+  const sendBtn = document.getElementById('sendBtn');
+  const recordBtn = document.getElementById('recordBtn');
+  const statusEl = document.getElementById('status');
+  const errorLog = document.getElementById('errorLog');
+
+  function timeNow(){
+    const d = new Date();
+    return d.toLocaleTimeString();
+  }
+
+  function appendMessage(text, cls){
+    const wrapper = document.createElement('div');
+    wrapper.className = 'msg ' + cls;
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar';
+    avatar.style.background = cls === 'user' ? 'linear-gradient(90deg,#3b82f6,#2563eb)' : '#c7e0ff';
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble ' + cls;
+    // 支持传入 element（如 pre/code）或字符串
+    if (text instanceof Node) {
+      bubble.appendChild(text);
+    } else {
+      bubble.textContent = text;
+    }
+    const meta = document.createElement('div');
+    meta.className = 'small timestamp';
+    meta.textContent = timeNow();
+
+    if(cls === 'user'){
+      wrapper.appendChild(bubble);
+      wrapper.appendChild(avatar);
+      wrapper.appendChild(meta);
+    } else {
+      wrapper.appendChild(avatar);
+      wrapper.appendChild(bubble);
+      wrapper.appendChild(meta);
+    }
+
+    messagesEl.appendChild(wrapper);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return bubble;
+  }
+
+  // 后端访问并返回主页按钮
+  const backendBtn = document.getElementById('backendBtn');
+  if(backendBtn){
+    backendBtn.addEventListener('click', async ()=>{
+      try{
+        backendBtn.disabled = true;
+        backendBtn.textContent = '处理中...';
+        const r = await fetch('/api/stream_action', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ action: 'goto_home' }) });
+        if(!r.ok){
+          const j = await r.json().catch(()=>({}));
+          showError(j.message || '后台请求失败');
+          backendBtn.disabled = false;
+          backendBtn.textContent = '保存并返回主页';
+          return;
+        }
+        // 跳转到主页
+        window.location.href = '/';
+      }catch(e){
+        showError(e.message || String(e));
+        backendBtn.disabled = false;
+        backendBtn.textContent = '保存并返回主页';
+      }
+    });
+  }
+
+  // 将历史记录渲染到页面，遵循聊天数据结构
+  async function loadHistory(){
+    try{
+      const resp = await fetch('/api/chat_history');
+      if(!resp.ok) return;
+      const data = await resp.json();
+      // 清空现有消息
+      messagesEl.innerHTML = '';
+      for(const item of data){
+        try{
+          const role = item.role || item.sender || (item.user_id ? 'user' : 'assistant');
+          let raw = item.message || item.content || '';
+          // 规范化：如果是 JSON 字符串，尝试解析并取 message 字段
+          let display = '';
+          if(typeof raw === 'string'){
+            const s = raw.trim();
+            if((s.startsWith('{') && s.endsWith('}')) || (s.startsWith('[') && s.endsWith(']'))){
+              try{
+                const parsed = JSON.parse(s);
+                if(parsed && typeof parsed === 'object'){
+                  if(parsed.message) display = parsed.message;
+                  else display = JSON.stringify(parsed, null, 2);
+                }
+              }catch(e){ display = raw; }
+            } else {
+              display = raw;
+            }
+          } else {
+            display = String(raw);
+          }
+
+          // 如果包含三连反引号，渲染为 pre
+          if(typeof display === 'string' && display.includes('```')){
+            const parts = display.split(/```([\s\S]*?)```/);
+            // 简单处理：如果包含代码块，显示为 pre
+            const pre = document.createElement('pre');
+            pre.textContent = display.replace(/```/g,'');
+            appendMessage(pre, role === 'assistant' ? 'ai' : 'user');
+          } else {
+            appendMessage(display, role === 'assistant' ? 'ai' : 'user');
+          }
+        }catch(e){
+          console.error('渲染历史记录单条失败', e);
+        }
+      }
+    }catch(e){
+      console.error('加载聊天历史失败', e);
+    }
+  }
+
+  function showError(msg){
+    errorLog.hidden = false;
+    errorLog.textContent = msg;
+    statusEl.textContent = '错误';
+  }
+
+  // 发送消息并从 /api/stream_chat 逐步接收流式回复
+  async function sendMessage(text){
+    if(!text) return;
+    appendMessage(text, 'user');
+    // 静默触发一次表情抓拍并上传（不在界面显示结果）
+    try{ silentEmotionCapture().catch(()=>{}); }catch(e){ console.warn('silentEmotionCapture 调用失败', e); }
+    inputBox.value = '';
+    statusEl.textContent = '等待 AI 回复...';
+    errorLog.hidden = true;
+
+    // 在界面预先添加一个AI消息元素，用于逐步填充
+    const aiBubble = appendMessage('', 'ai');
+
+    try{
+      const resp = await fetch('/api/stream_chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text })
+      });
+
+      if(!resp.ok){
+        statusEl.textContent = '服务器响应错误';
+        aiBubble.textContent = '[错误] 无法获取AI回复';
+        showError('服务器返回非200响应');
+        return;
+      }
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let buffer = '';
+
+      while(true){
+        const { done, value } = await reader.read();
+        if(done) break;
+        buffer += decoder.decode(value, {stream: true});
+
+        const parts = buffer.split('\n\n');
+        for(let i=0;i<parts.length-1;i++){
+          const part = parts[i].trim();
+          if(part.startsWith('data:')){
+            const line = part.replace(/^data:\s*/,'');
+            try{
+              const obj = JSON.parse(line);
+              if(obj.chunk){
+                aiBubble.textContent += obj.chunk;
+                messagesEl.scrollTop = messagesEl.scrollHeight;
+              } else if(obj.error){
+                aiBubble.textContent += '\n[错误] ' + obj.error;
+                showError(obj.error);
+              }
+            }catch(e){
+              aiBubble.textContent += '\n' + line;
+            }
+          }
+        }
+        buffer = parts[parts.length-1];
+      }
+
+      if(buffer.trim()){
+        const part = buffer.trim();
+        if(part.startsWith('data:')){
+          const line = part.replace(/^data:\s*/,'');
+          try{ const obj = JSON.parse(line); if(obj.chunk) aiBubble.textContent += obj.chunk; }catch(e){ aiBubble.textContent += '\n' + line; }
+        }
+      }
+
+      // 流结束后尝试将 AI 输出解析为 JSON（若是完整的 JSON 字符串），并格式化显示
+      try{
+        const text = aiBubble.textContent.trim();
+        // 尝试从文本中抽取第一个 JSON 对象并解析（支持 code-fence 中的 JSON）
+        const codeFenceJson = text.match(/```json\s*(\{[\s\S]*?\})\s*```/i) || text.match(/```\s*(\{[\s\S]*?\})\s*```/);
+        const plainJson = text.match(/(\{[\s\S]*?\})/);
+        let jsonText = null;
+        if(codeFenceJson && codeFenceJson[1]) jsonText = codeFenceJson[1];
+        else if(plainJson && plainJson[1]) jsonText = plainJson[1];
+
+        if(jsonText){
+          try{
+            const parsed = JSON.parse(jsonText);
+            if(parsed && typeof parsed === 'object'){
+              const out = parsed.message || JSON.stringify(parsed, null, 2);
+              if(typeof out === 'string' && out.includes('```')){
+                const pre = document.createElement('pre');
+                pre.textContent = out.replace(/```/g, '');
+                aiBubble.textContent = '';
+                aiBubble.appendChild(pre);
+              } else {
+                aiBubble.textContent = out;
+              }
+            }
+          }catch(e){ console.warn('JSON 解析失败', e); }
+        }
+      }catch(e){ console.warn('解析AI输出为JSON失败', e); }
+
+      statusEl.textContent = '已完成';
+      // 自动为 AI 输出合成语音并播放（非强制）
+      try{
+        const finalText = (function(){
+          try{ return aiBubble.textContent.trim(); }catch(e){ return ''; }
+        })();
+        if(finalText) ttsPlayFromText(finalText);
+      }catch(e){ console.warn('TTS 播放触发失败', e); }
+
+    }catch(err){
+      console.error(err);
+      statusEl.textContent = '请求失败';
+      showError(err.message || String(err));
+      aiBubble.textContent += '\n[错误] ' + (err.message || String(err));
+    }
+  }
+
+  sendBtn.addEventListener('click', ()=>{
+    const t = inputBox.value.trim();
+    if(t) sendMessage(t);
+  });
+
+  // emotionBtn and playAIBtn were removed from DOM; no direct bindings here
+
+  async function ttsPlayFromText(text){
+    if(!text) return;
+    try{
+      const r = await fetch('/api/tts', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ text }) });
+      if(!r.ok){
+        const j = await r.json().catch(()=>({}));
+        showError(j.error || 'TTS 请求失败');
+        return;
+      }
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const a = new Audio(url);
+      a.play().catch(e=>console.warn('自动播放被阻止', e));
+    }catch(e){
+      console.error(e);
+      showError('TTS 播放失败');
+    }
+  }
+
+  // 静默抓拍并上传表情图片（不在页面显示结果）
+  async function silentEmotionCapture(){
+    try{
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const v = document.createElement('video');
+      v.srcObject = stream;
+      // 尝试播放以获取第一帧
+      await v.play().catch(()=>{});
+      const canvas = document.createElement('canvas');
+      canvas.width = 320; canvas.height = 240;
+      const ctx = canvas.getContext('2d');
+      try{ ctx.drawImage(v, 0, 0, canvas.width, canvas.height); }catch(e){ console.warn('drawImage failed', e); }
+      // 停止摄像头
+      stream.getTracks().forEach(t=>t.stop());
+      // 将图片上传到 /api/analyze_emotion，但不在界面中显示结果
+      canvas.toBlob(async (blob)=>{
+        if(!blob) return;
+        const fd = new FormData();
+        fd.append('image', blob, 'capture.jpg');
+        try{
+          await fetch('/api/analyze_emotion', { method: 'POST', body: fd });
+        }catch(e){
+          console.warn('silent emotion upload failed', e);
+        }
+      }, 'image/jpeg', 0.8);
+    }catch(e){
+      // 静默失败，不打扰用户
+      console.warn('silentEmotionCapture failed', e);
+    }
+  }
+
+
+  // 手动播放按钮已移除；如需手动播放可通过 UI 恢复按钮并调用 ttsPlayFromText
+
+  inputBox.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter'){
+      const t = inputBox.value.trim();
+      if(t) sendMessage(t);
+    }
+  });
+
+  // 使用 WebAudio API 进行高质量录音并导出为 16kHz 单声道 WAV
+  let audioCtx = null;
+  let scriptNode = null;
+  let mediaStream = null;
+  let recording = false;
+  let audioDataBuffer = [];
+
+  function downsampleBuffer(buffer, sampleRate, outSampleRate) {
+    if (outSampleRate === sampleRate) return buffer;
+    const sampleRateRatio = sampleRate / outSampleRate;
+    const newLength = Math.round(buffer.length / sampleRateRatio);
+    const result = new Float32Array(newLength);
+    let offsetResult = 0;
+    let offsetBuffer = 0;
+    while (offsetResult < result.length) {
+      const nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
+      // Use average value between the two buffer positions
+      let accum = 0, count = 0;
+      for (let i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
+        accum += buffer[i];
+        count++;
+      }
+      result[offsetResult] = count ? accum / count : 0;
+      offsetResult++;
+      offsetBuffer = nextOffsetBuffer;
+    }
+    return result;
+  }
+
+  function floatTo16BitPCM(float32Array) {
+    const l = float32Array.length;
+    const buf = new ArrayBuffer(l * 2);
+    const view = new DataView(buf);
+    let offset = 0;
+    for (let i = 0; i < l; i++, offset += 2) {
+      let s = Math.max(-1, Math.min(1, float32Array[i]));
+      view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+    }
+    return buf;
+  }
+
+  function encodeWAV(samples, sampleRate) {
+    const sampleBits = 16;
+    const bytesPerSample = sampleBits / 8;
+    const buffer = new ArrayBuffer(44 + samples.length * bytesPerSample);
+    const view = new DataView(buffer);
+
+    function writeString(view, offset, string) {
+      for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+      }
+    }
+
+    let offset = 0;
+    writeString(view, offset, 'RIFF'); offset += 4;
+    view.setUint32(offset, 36 + samples.length * bytesPerSample, true); offset += 4;
+    writeString(view, offset, 'WAVE'); offset += 4;
+    writeString(view, offset, 'fmt '); offset += 4;
+    view.setUint32(offset, 16, true); offset += 4; // Subchunk1Size
+    view.setUint16(offset, 1, true); offset += 2; // AudioFormat PCM
+    view.setUint16(offset, 1, true); offset += 2; // NumChannels
+    view.setUint32(offset, sampleRate, true); offset += 4; // SampleRate
+    view.setUint32(offset, sampleRate * bytesPerSample, true); offset += 4; // ByteRate
+    view.setUint16(offset, bytesPerSample, true); offset += 2; // BlockAlign
+    view.setUint16(offset, sampleBits, true); offset += 2; // BitsPerSample
+    writeString(view, offset, 'data'); offset += 4;
+    view.setUint32(offset, samples.length * bytesPerSample, true); offset += 4;
+
+    // PCM samples
+    const pcm = floatTo16BitPCM(samples);
+    const pcmView = new Uint8Array(pcm);
+    for (let i = 0; i < pcmView.length; i++) view.setUint8(offset + i, pcmView[i]);
+
+    return new Blob([view], { type: 'audio/wav' });
+  }
+
+  recordBtn.addEventListener('click', async () => {
+    if (recording) {
+      // stop
+      recording = false;
+      recordBtn.textContent = '🎤 语音输入';
+      statusEl.textContent = '处理中（语音识别中）...';
+      try {
+        // stop nodes
+        scriptNode.disconnect();
+        audioCtx.close();
+        mediaStream.getTracks().forEach(t => t.stop());
+      } catch (e) { console.warn(e); }
+
+      // merge buffers
+      let flat = null;
+      if (audioDataBuffer.length === 1) flat = audioDataBuffer[0];
+      else {
+        let totalLength = 0; for (let i=0;i<audioDataBuffer.length;i++) totalLength += audioDataBuffer[i].length;
+        flat = new Float32Array(totalLength);
+        let offset = 0; for (let i=0;i<audioDataBuffer.length;i++) { flat.set(audioDataBuffer[i], offset); offset += audioDataBuffer[i].length; }
+      }
+      // downsample to 16000
+      const down = downsampleBuffer(flat, audioCtx.sampleRate, 16000);
+      const wavBlob = encodeWAV(down, 16000);
+
+      const fd = new FormData();
+      fd.append('audio', wavBlob, 'record.wav');
+      try{
+        const r = await fetch('/api/voice_to_text', { method: 'POST', body: fd });
+        const j = await r.json();
+        const text = j.text || '';
+        if(text){
+          inputBox.value = text;
+          statusEl.textContent = '识别结果已放入输入框，正在发送...';
+          sendMessage(text);
+        } else {
+          statusEl.textContent = '未识别到文字';
+          showError('没有识别到有效文字（可能是音质或服务未配置）');
+        }
+      }catch(e){
+        console.error(e);
+        statusEl.textContent = '语音识别请求失败';
+        showError(e.message || String(e));
+      }
+
+      return;
+    }
+
+    // start recording
+    try{
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const source = audioCtx.createMediaStreamSource(mediaStream);
+      // buffer size 4096 for reasonable latency
+      scriptNode = audioCtx.createScriptProcessor(4096, 1, 1);
+      audioDataBuffer = [];
+      scriptNode.onaudioprocess = (e) => {
+        const input = e.inputBuffer.getChannelData(0);
+        audioDataBuffer.push(new Float32Array(input));
+      };
+      source.connect(scriptNode);
+      scriptNode.connect(audioCtx.destination);
+      recording = true;
+      recordBtn.textContent = '■ 停止录音';
+      statusEl.textContent = '正在录音... 点击按钮停止';
+    }catch(e){
+      console.error(e);
+      statusEl.textContent = '无法访问麦克风';
+      showError(e.message || String(e));
+    }
+  });
+  // 页面加载时自动拉取历史记录
+  loadHistory();
+
+})();
+</script>
+</body>
+</html>

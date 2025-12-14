@@ -26,11 +26,64 @@ class BaiduAudioService(BaseAudioService):
             return fp.read()
             
     def speech_to_text(self, audio_file: str) -> str:
-        """语音转文字"""
-        result = self.client.asr(self._get_file_content(audio_file), 'pcm', 16000, {
-            'dev_pid': 1537,
-        })
-        return result["result"][0] if result.get("result") else ""
+        """语音转文字
+
+        增强逻辑：如果上传的是 WAV 文件，读取后确保为 16kHz、单声道、16-bit PCM，然后将原始 PCM bytes 发送给百度 ASR。
+        这样能提升不同浏览器录音生成格式导致的识别不准确问题。
+        """
+        try:
+            # 如果是 WAV 文件，进行必要的格式规范化
+            if audio_file.lower().endswith('.wav'):
+                import wave
+                import audioop
+                with wave.open(audio_file, 'rb') as wf:
+                    nchannels = wf.getnchannels()
+                    sampwidth = wf.getsampwidth()
+                    framerate = wf.getframerate()
+                    frames = wf.readframes(wf.getnframes())
+
+                    data = frames
+                    # 转为单声道
+                    if nchannels > 1:
+                        data = audioop.tomono(data, sampwidth, 1, 1)
+                        sampwidth = sampwidth
+                        nchannels = 1
+                    # 转为 16-bit
+                    if sampwidth != 2:
+                        try:
+                            data = audioop.lin2lin(data, sampwidth, 2)
+                            sampwidth = 2
+                        except Exception:
+                            pass
+                    # 采样率调整到 16000
+                    if framerate != 16000:
+                        try:
+                            data, _ = audioop.ratecv(data, sampwidth, 1, framerate, 16000, None)
+                        except Exception:
+                            pass
+
+                    result = self.client.asr(data, 'pcm', 16000, {
+                        'dev_pid': 1537,
+                    })
+            else:
+                # 其他文件类型，直接读取原始 bytes 交由百度处理（可能会失败）
+                result = self.client.asr(self._get_file_content(audio_file), 'pcm', 16000, {
+                    'dev_pid': 1537,
+                })
+
+            if isinstance(result, dict) and result.get('err_no') != 0:
+                # 出错或无识别结果
+                return ''
+            return result["result"][0] if result.get("result") else ""
+        except Exception as e:
+            print(f"speech_to_text 处理音频失败: {e}")
+            try:
+                # 尝试作为原始读取回退
+                result = self.client.asr(self._get_file_content(audio_file), 'pcm', 16000, {'dev_pid': 1537})
+                return result["result"][0] if result.get("result") else ""
+            except Exception as e2:
+                print(f"speech_to_text 回退也失败: {e2}")
+                return ""
         
     def text_to_speech(self, text: str, output_file: str = "output.mp3") -> None:
         """文字转语音"""

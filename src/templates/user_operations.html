@@ -65,9 +65,12 @@
     <div class="sidebar">
         <h2>Luminetst工作坊</h2>
         <a href="/">首页</a>
-        <a href="/danger_signals">危险信息监测</a>
+        <a href="/assessment">综合评估</a>
         <a href="/chat">对话测试</a>
+        <a href="/stream_page">流式对话</a>
         <a href="/user_operations" class="active">用户操作</a>
+        <a href="/danger_signals">危险信息监测</a>
+        <a href="/emotion_monitor">表情监控</a>
     </div>
     <div class="content">
         <div class="chat-container">
@@ -100,6 +103,16 @@
                     <button id="status-button" class="operation-button">检查系统状态</button>
                 </div>
                 <div id="status-result" class="operation-result"></div>
+            </div>
+            
+            <div class="operation-container">
+                <div class="operation-title">数据清理</div>
+                <div class="operation-description">清除表情识别历史或危机信号（此操作不可逆，请谨慎操作）。</div>
+                <div class="operation-buttons">
+                    <button id="clear-emotions-button" class="operation-button danger">清除表情识别记录</button>
+                    <button id="clear-signals-button" class="operation-button danger">清除危机信号</button>
+                </div>
+                <div id="data-clean-result" class="operation-result"></div>
             </div>
         </div>
     </div>
@@ -214,6 +227,62 @@
                 resultDiv.style.display = 'block';
                 resultDiv.style.backgroundColor = '#ffebee';
             }
+        }
+    </script>
+    <script>
+        // 清除表情识别记录
+        const clearEmotionsBtn = document.getElementById('clear-emotions-button');
+        const clearSignalsBtn = document.getElementById('clear-signals-button');
+        const dataCleanResult = document.getElementById('data-clean-result');
+
+        if(clearEmotionsBtn){
+            clearEmotionsBtn.addEventListener('click', async ()=>{
+                if(!confirm('确认要清除所有表情识别记录吗？此操作不可恢复。')) return;
+                clearEmotionsBtn.disabled = true;
+                try{
+                    const r = await fetch('/api/clear_emotions', { method: 'POST' });
+                    const j = await r.json().catch(()=>({}));
+                    if(r.ok && j.status === 'success'){
+                        dataCleanResult.textContent = '表情识别记录已清除';
+                        dataCleanResult.style.display = 'block';
+                        dataCleanResult.style.backgroundColor = '#e8f5e9';
+                    } else {
+                        dataCleanResult.textContent = '清除失败: ' + (j.message || '服务器返回错误');
+                        dataCleanResult.style.display = 'block';
+                        dataCleanResult.style.backgroundColor = '#ffebee';
+                    }
+                }catch(e){
+                    console.error('清除表情记录失败', e);
+                    dataCleanResult.textContent = '清除表情记录请求失败，请稍后重试';
+                    dataCleanResult.style.display = 'block';
+                    dataCleanResult.style.backgroundColor = '#ffebee';
+                }finally{ clearEmotionsBtn.disabled = false; }
+            });
+        }
+
+        if(clearSignalsBtn){
+            clearSignalsBtn.addEventListener('click', async ()=>{
+                if(!confirm('确认要清除所有危机信号吗？此操作不可恢复。')) return;
+                clearSignalsBtn.disabled = true;
+                try{
+                    const r = await fetch('/api/clear_signals', { method: 'POST' });
+                    const j = await r.json().catch(()=>({}));
+                    if(r.ok && j.status === 'success'){
+                        dataCleanResult.textContent = '危机信号已清除';
+                        dataCleanResult.style.display = 'block';
+                        dataCleanResult.style.backgroundColor = '#e8f5e9';
+                    } else {
+                        dataCleanResult.textContent = '清除失败: ' + (j.message || '服务器返回错误');
+                        dataCleanResult.style.display = 'block';
+                        dataCleanResult.style.backgroundColor = '#ffebee';
+                    }
+                }catch(e){
+                    console.error('清除危机信号失败', e);
+                    dataCleanResult.textContent = '清除危机信号请求失败，请稍后重试';
+                    dataCleanResult.style.display = 'block';
+                    dataCleanResult.style.backgroundColor = '#ffebee';
+                }finally{ clearSignalsBtn.disabled = false; }
+            });
         }
     </script>
 </body>

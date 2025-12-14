@@ -57,13 +57,22 @@ class DeepseekAnalysisService(BaseAnalysisService):
                 content=self._format_history(history_messages)
             )
         ]
-        response = self.client.chat.completions.create(
-            model="deepseek-chat",
-            messages=messages,
-            temperature=0.7
-        )
-        content = response.choices[0].message.content
-        return content if content else ""
+        try:
+            response = self.client.chat.completions.create(
+                model="deepseek-chat",
+                messages=messages,
+                temperature=0.7
+            )
+            content = response.choices[0].message.content
+            return content if content else ""
+        except Exception as e:
+            # 友好处理常见的余额/认证错误，返回空字符串以避免前端崩溃
+            err = str(e)
+            if 'Insufficient Balance' in err or '402' in err:
+                print('Deepseek analyze_danger_keywords: 服务不可用（余额不足或计费问题）')
+            else:
+                print(f'Deepseek analyze_danger_keywords 调用失败: {err}')
+            return ""
         
     def analyze_danger(self, history_messages: List[Dict]) -> str:
         messages = [
@@ -83,18 +92,30 @@ class DeepseekAnalysisService(BaseAnalysisService):
         ]
         
         print("Deepseek危机分析中...")
-        response = self.client.chat.completions.create(
-            model="deepseek-chat",
-            messages=messages,
-            temperature=1.0
-        )
-
-        if response.choices[0].message.content is not None:
-            analysis = response.choices[0].message.content
-            vidlie = self.cross_validation(analysis)
-            return analysis + "\n\n\n以下为对分析结果多模型交叉验证的结果：\n" + vidlie
-        else:
-            return ""
+        try:
+            response = self.client.chat.completions.create(
+                model="deepseek-chat",
+                messages=messages,
+                temperature=1.0
+            )
+            if response.choices[0].message.content is not None:
+                analysis = response.choices[0].message.content
+                try:
+                    vidlie = self.cross_validation(analysis)
+                except Exception as e:
+                    print(f"交叉验证失败: {e}")
+                    vidlie = "交叉验证失败"
+                return analysis + "\n\n\n以下为对分析结果多模型交叉验证的结果：\n" + vidlie
+            else:
+                return ""
+        except Exception as e:
+            err = str(e)
+            if 'Insufficient Balance' in err or '402' in err:
+                print('Deepseek analyze_danger: 服务不可用（余额不足或计费问题）')
+                return 'AI 服务暂不可用（余额或计费问题），无法生成危机分析。'
+            else:
+                print(f'Deepseek analyze_danger 调用失败: {err}')
+                return 'AI 服务调用失败，无法生成危机分析。'
     
     def cross_validation(self, ai_response: str) -> str:
         messages = [
@@ -112,13 +133,22 @@ class DeepseekAnalysisService(BaseAnalysisService):
             )
         ]
         print("Deepseek交叉验证中...")
-        response = self.client.chat.completions.create(
-            model="deepseek-chat",
-            messages=messages,
-            temperature=0.5
-        )
-        return response.choices[0].message.content if response.choices[0].message.content is not None else ""
+        try:
+            response = self.client.chat.completions.create(
+                model="deepseek-chat",
+                messages=messages,
+                temperature=0.5
+            )
+            return response.choices[0].message.content if response.choices[0].message.content is not None else ""
+        except Exception as e:
+            err = str(e)
+            if 'Insufficient Balance' in err or '402' in err:
+                print('Deepseek cross_validation: 服务不可用（余额不足或计费问题）')
+            else:
+                print(f"交叉验证失败: {err}")
+            return "交叉验证失败"
         
+            return parsed
     def analyze_preferences(self, history_messages: List[Dict]) -> Dict:
         messages = [
             ChatCompletionSystemMessageParam(
