@@ -68,7 +68,6 @@ class WebApp:
         self.app.add_url_rule('/api/voice_to_text', 'voiceToText', self.voice_to_text, methods=['POST'])
         self.app.add_url_rule('/api/tts', 'tts', self.tts, methods=['POST'])
         self.app.add_url_rule('/api/stream_action', 'streamAction', self.stream_action, methods=['POST'])
-        # 提供 favicon，避免浏览器对 /favicon.ico 的 404 请求日志
         self.app.add_url_rule('/favicon.ico', 'favicon', self.favicon, methods=['GET'])
         self.app.add_url_rule('/api/save_history', 'saveChatHistory', self.saveChatHistory, methods=['GET'])
         self.app.add_url_rule('/api/del_history', 'delHistory', self.delHistory, methods=['GET'])

@@ -57,7 +57,7 @@
       <div class="messages" id="messages" aria-live="polite"></div>
       <div class="composer">
         <button id="recordBtn" class="secondary">🎤 语音输入</button>
-        <input type="text" id="inputBox" placeholder="输入讯息然后按发送，或点击语音输入并对话..." aria-label="消息输入" />
+        <input type="text" id="inputBox" placeholder="输入文本然后按发送，或点击语音输入并对话..." aria-label="消息输入" />
         <button id="sendBtn">发送</button>
       </div>
       <div class="meta">
@@ -207,6 +207,40 @@
 
     // 在界面预先添加一个AI消息元素，用于逐步填充
     const aiBubble = appendMessage('', 'ai');
+    // 在客户端尝试即时解析并展示 JSON（如果 AI 输出为结构化 JSON），在后端 analyze_danger 运行时即可播放 TTS，避免长时间等待
+    let clientJsonHandled = false;
+
+    function tryParseAndRenderJsonNow(){
+      if(clientJsonHandled) return false;
+      try{
+        const cur = aiBubble.textContent || '';
+        const codeFenceJson = cur.match(/```json\s*(\{[\s\S]*?\})\s*```/i) || cur.match(/```\s*(\{[\s\S]*?\})\s*```/);
+        const plainJson = cur.match(/(\{[\s\S]*?\})/);
+        let jsonText = null;
+        if(codeFenceJson && codeFenceJson[1]) jsonText = codeFenceJson[1];
+        else if(plainJson && plainJson[1]) jsonText = plainJson[1];
+        if(!jsonText) return false;
+        let parsed = null;
+        try{ parsed = JSON.parse(jsonText); }catch(e){ parsed = null; }
+        if(parsed && typeof parsed === 'object'){
+          const out = parsed.message || JSON.stringify(parsed, null, 2);
+          // formatted display
+          if(typeof out === 'string' && out.includes('```')){
+            const pre = document.createElement('pre');
+            pre.textContent = out.replace(/```/g, '');
+            aiBubble.textContent = '';
+            aiBubble.appendChild(pre);
+          } else {
+            aiBubble.textContent = out;
+          }
+          // 触发 TTS 播放以减少用户等待（不等待播放完成）
+          try{ if(out && out.trim()) ttsPlayFromText(out); }catch(e){ console.warn('即时 TTS 触发失败', e); }
+          clientJsonHandled = true;
+          return true;
+        }
+      }catch(e){ console.warn('tryParseAndRenderJsonNow 失败', e); }
+      return false;
+    }
 
     try{
       const resp = await fetch('/api/stream_chat', {
@@ -241,6 +275,8 @@
               if(obj.chunk){
                 aiBubble.textContent += obj.chunk;
                 messagesEl.scrollTop = messagesEl.scrollHeight;
+                // 在收到新的 chunk 之后尝试即时解析 JSON 并播放 TTS（只触发一次）
+                tryParseAndRenderJsonNow();
               } else if(obj.error){
                 aiBubble.textContent += '\n[错误] ' + obj.error;
                 showError(obj.error);
@@ -257,7 +293,7 @@
         const part = buffer.trim();
         if(part.startsWith('data:')){
           const line = part.replace(/^data:\s*/,'');
-          try{ const obj = JSON.parse(line); if(obj.chunk) aiBubble.textContent += obj.chunk; }catch(e){ aiBubble.textContent += '\n' + line; }
+          try{ const obj = JSON.parse(line); if(obj.chunk) { aiBubble.textContent += obj.chunk; tryParseAndRenderJsonNow(); } }catch(e){ aiBubble.textContent += '\n' + line; }
         }
       }
 
@@ -284,18 +320,20 @@
               } else {
                 aiBubble.textContent = out;
               }
+              // 如果在流过程中还未触发客户端播放（可能因为 JSON 是最后才完整），这里确保触发一次
+              if(!clientJsonHandled){ try{ if(out && out.trim()) ttsPlayFromText(out); }catch(e){ console.warn('终结时触发 TTS 失败', e); } clientJsonHandled = true; }
             }
           }catch(e){ console.warn('JSON 解析失败', e); }
         }
       }catch(e){ console.warn('解析AI输出为JSON失败', e); }
 
       statusEl.textContent = '已完成';
-      // 自动为 AI 输出合成语音并播放（非强制）
+      // 自动为 AI 输出合成语音并播放（仅在客户端尚未在流中播放过时触发）
       try{
         const finalText = (function(){
           try{ return aiBubble.textContent.trim(); }catch(e){ return ''; }
         })();
-        if(finalText) ttsPlayFromText(finalText);
+        if(finalText && !clientJsonHandled) ttsPlayFromText(finalText);
       }catch(e){ console.warn('TTS 播放触发失败', e); }
 
     }catch(err){
