@@ -1,0 +1,21 @@
+[
+    {
+        "type": "emotion",
+        "user_id": "",
+        "trigger_message": "fear",
+        "timestamp": "2026-02-13T20:22:05.677971",
+        "data": {
+            "dominant_emotion": "fear",
+            "emotions": {
+                "angry": 0.006803387941060105,
+                "disgust": 1.7002568098252114e-15,
+                "fear": 0.8277448964500609,
+                "happy": 1.466142536987405e-09,
+                "sad": 0.012025431291219536,
+                "surprise": 1.0428433507922081e-07,
+                "neutral": 0.1534261785671802
+            }
+        },
+        "note": ""
+    }
+]

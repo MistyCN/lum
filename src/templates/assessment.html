@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+
+{% block title %}综合评估 - Luminest{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+    .stat-card {
+        flex: 1;
+        min-width: 200px;
+        padding: 1.5rem;
+        border-radius: var(--radius-lg);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        transition: transform 0.2s;
+        color: white;
+    }
+    .stat-card:hover { transform: translateY(-4px); }
+    .stat-card .material-icons { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .stat-value { font-size: 2rem; font-weight: 800; }
+    .stat-label { font-size: 0.875rem; font-weight: 500; opacity: 0.9; }
+
+    .chart-container {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border);
+    }
+    .crisis-section {
+        background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        margin-top: 2rem;
+        border: 1px solid var(--border);
+    }
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2 style="font-weight: 800; color: var(--text-main);">综合心理参数评估</h2>
+        <div style="display: flex; gap: 0.5rem;">
+            <button id="btn-refresh" class="secondary"><span class="material-icons">refresh</span>刷新</button>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2.5rem;">
+        <div class="stat-card" style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);">
+            <span class="material-icons">forum</span>
+            <div class="stat-value" id="chat-count">0</div>
+            <div class="stat-label">对话总数</div>
+        </div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);">
+            <span class="material-icons">warning</span>
+            <div class="stat-value" id="danger-count">0</div>
+            <div class="stat-label">危机信号</div>
+        </div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">
+            <span class="material-icons">face</span>
+            <div class="stat-value" id="emotion-count">0</div>
+            <div class="stat-label">表情识别</div>
+        </div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);">
+            <span class="material-icons">mood_bad</span>
+            <div class="stat-value" id="depression-count">0</div>
+            <div class="stat-label">异常情绪</div>
+        </div>
+    </div>
+
+    <div class="crisis-section">
+        <h3 style="color: var(--danger); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span class="material-icons">psychology</span>
+            AI 心理危机深度评估
+        </h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+            <div class="chart-container" style="text-align: center;">
+                <div style="font-weight: 700; margin-bottom: 1rem; color: var(--text-muted);">危机程度指数</div>
+                <div id="crisisGauge" style="width: 100%; height: 220px;"></div>
+                <div id="crisis-score-label" style="font-size: 1.25rem; font-weight: 800; color: var(--primary);">评分：--</div>
+            </div>
+            <div class="card" style="margin-bottom: 0;">
+                <div style="margin-bottom: 1.5rem;">
+                    <span class="badge" style="background: var(--primary-light); color: var(--primary);">分析结论</span>
+                    <div id="crisis-interpretation" style="margin-top: 0.5rem; font-weight: 600; font-size: 1.125rem;">正在分析中...</div>
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <span class="badge" style="background: #fef3c7; color: #92400e;">评估理由</span>
+                    <div id="crisis-explanation" style="margin-top: 0.5rem; color: var(--text-muted); font-size: 0.875rem;">正在获取 AI 分析...</div>
+                </div>
+                <div>
+                    <span class="badge" style="background: #fee2e2; color: #991b1b;">专家建议</span>
+                    <div id="crisis-suggestions" style="margin-top: 0.5rem; color: var(--text-muted); font-size: 0.875rem;">正在生成建议...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-container">
+        <div class="chart-container">
+            <div style="font-weight: 700; margin-bottom: 1rem; color: var(--text-muted);">心理参数分布</div>
+            <div id="barChart" style="width: 100%; height: 300px;"></div>
+        </div>
+        <div class="chart-container">
+            <div style="font-weight: 700; margin-bottom: 1rem; color: var(--text-muted);">参数占比</div>
+            <div id="pieChart" style="width: 100%; height: 300px;"></div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 2.5rem;">
+        <h3 style="color: var(--success);"><span class="material-icons">insert_chart</span> 情绪识别专项分析</h3>
+        <div class="grid-container" style="margin-bottom: 2rem;">
+            <div id="emotionBarChart" style="width: 100%; height: 250px;"></div>
+            <div id="emotionPieChart" style="width: 100%; height: 250px;"></div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>情绪类型</th>
+                    <th>出现次数</th>
+                    <th>占比</th>
+                    <th>百分率</th>
+                </tr>
+            </thead>
+            <tbody id="emotion-table-body"></tbody>
+        </table>
+    </div>
+
+    <div class="card" style="margin-top: 2rem; border-color: var(--warning); background: #fffcf0;">
+        <h3 style="color: var(--warning);"><span class="material-icons">manage_accounts</span> 数据管理</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem;">
+            <button id="btn-clear-chats" class="secondary">清除聊天记录</button>
+            <button id="btn-clear-emotions" class="secondary">清除表情记录</button>
+            <button id="btn-clear-signals" class="secondary">清除危机信号</button>
+            <button id="btn-clear-preferences" class="secondary">清除用户喜好</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    async function fetchStats() {
+        let chatCount = 0;
+        let dangerCount = 0;
+        let emotionCount = 0;
+        let depressionCount = 0;
+        let emotionData = [];
+        let chatData = [];
+        let dangerData = [];
+
+        try {
+            const chatRes = await fetch('/api/chat_history');
+            chatData = await chatRes.json();
+            chatCount = chatData.length;
+            document.getElementById('chat-count').textContent = chatCount;
+        } catch(e) {}
+
+        try {
+            const dangerRes = await fetch('/api/signals');
+            dangerData = await dangerRes.json();
+            dangerCount = dangerData.length;
+            document.getElementById('danger-count').textContent = dangerCount;
+        } catch(e) {}
+
+        try {
+            const emotionRes = await fetch('/api/emotions');
+            emotionData = await emotionRes.json();
+            emotionCount = emotionData.length;
+            document.getElementById('emotion-count').textContent = emotionCount;
+            depressionCount = emotionData.filter(e => {
+                if (e.data && e.data.dominant_emotion) {
+                    return ['sad','angry','fear','disgust'].includes(e.data.dominant_emotion);
+                }
+                return false;
+            }).length;
+            document.getElementById('depression-count').textContent = depressionCount;
+        } catch(e) {}
+
+        const emotionTypes = {};
+        emotionData.forEach(e => {
+            if (e.data && e.data.dominant_emotion) {
+                const dom = e.data.dominant_emotion;
+                emotionTypes[dom] = (emotionTypes[dom] || 0) + 1;
+            }
+        });
+
+        const emotionTableBody = document.getElementById('emotion-table-body');
+        emotionTableBody.innerHTML = '';
+        Object.entries(emotionTypes).forEach(([type, count]) => {
+            const percent = emotionCount ? ((count/emotionCount)*100).toFixed(2) : '0.00';
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${type}</td><td>${count}</td><td>${count}/${emotionCount}</td><td>${percent}%</td>`;
+            emotionTableBody.appendChild(tr);
+        });
+
+        renderEmotionCharts(emotionTypes, emotionCount);
+        renderCharts({chatCount, dangerCount, emotionCount, depressionCount});
+
+        try {
+            const res = await fetch('/api/ai_crisis_index', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({history: chatData, emotions: emotionData})
+            });
+            const data = await res.json();
+            renderCrisisResult(data);
+        } catch(e) {
+            renderCrisisResult({score:0, interpretation:'分析失败', explanation:'无法连接到 AI 服务', suggestions:'请检查网络或稍后重试'});
+        }
+    }
+
+    function renderCharts({chatCount, dangerCount, emotionCount, depressionCount}) {
+        var barChart = echarts.init(document.getElementById('barChart'));
+        barChart.setOption({
+            tooltip: {},
+            xAxis: { type: 'category', data: ['对话', '危机', '表情', '异常'] },
+            yAxis: { type: 'value' },
+            series: [{
+                data: [chatCount, dangerCount, emotionCount, depressionCount],
+                type: 'bar',
+                itemStyle: { color: '#4f46e5', borderRadius: [4, 4, 0, 0] }
+            }]
+        });
+
+        var pieChart = echarts.init(document.getElementById('pieChart'));
+        pieChart.setOption({
+            tooltip: { trigger: 'item' },
+            series: [{
+                type: 'pie',
+                radius: ['40%', '70%'],
+                avoidLabelOverlap: false,
+                itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
+                label: { show: false },
+                data: [
+                    { value: chatCount, name: '对话', itemStyle: {color: '#4f46e5'} },
+                    { value: dangerCount, name: '危机', itemStyle: {color: '#f59e0b'} },
+                    { value: emotionCount, name: '表情', itemStyle: {color: '#10b981'} },
+                    { value: depressionCount, name: '异常', itemStyle: {color: '#ef4444'} }
+                ]
+            }]
+        });
+    }
+
+    function renderEmotionCharts(emotionTypes, total) {
+        var bar = echarts.init(document.getElementById('emotionBarChart'));
+        bar.setOption({
+            xAxis: { type: 'category', data: Object.keys(emotionTypes) },
+            yAxis: { type: 'value' },
+            series: [{ data: Object.values(emotionTypes), type: 'bar', itemStyle: {color: '#10b981', borderRadius: 4} }]
+        });
+
+        var pie = echarts.init(document.getElementById('emotionPieChart'));
+        pie.setOption({
+            series: [{
+                type: 'pie',
+                radius: '60%',
+                data: Object.entries(emotionTypes).map(([name, value]) => ({name, value})),
+                itemStyle: { borderRadius: 8 }
+            }]
+        });
+    }
+
+    function renderCrisisResult(data) {
+        document.getElementById('crisis-score-label').textContent = '评分：' + data.score;
+        document.getElementById('crisis-interpretation').textContent = data.interpretation;
+        document.getElementById('crisis-explanation').textContent = data.explanation;
+        document.getElementById('crisis-suggestions').textContent = data.suggestions;
+
+        var gauge = echarts.init(document.getElementById('crisisGauge'));
+        gauge.setOption({
+            series: [{
+                type: 'gauge',
+                startAngle: 180,
+                endAngle: 0,
+                min: 0,
+                max: 100,
+                progress: { show: true, width: 12, itemStyle: {color: data.score > 70 ? '#ef4444' : (data.score > 40 ? '#f59e0b' : '#10b981')} },
+                axisLine: { lineStyle: { width: 12 } },
+                axisTick: { show: false },
+                splitLine: { show: false },
+                axisLabel: { show: false },
+                pointer: { show: false },
+                detail: {
+                    valueAnimation: true,
+                    fontSize: 40,
+                    offsetCenter: [0, -10],
+                    formatter: '{value}',
+                    color: 'inherit'
+                },
+                data: [{ value: data.score }]
+            }]
+        });
+    }
+
+    // Event Listeners
+    document.getElementById('btn-refresh').addEventListener('click', fetchStats);
+    
+    const clearActions = {
+        'btn-clear-chats': '/api/clear_chats',
+        'btn-clear-emotions': '/api/clear_emotions',
+        'btn-clear-signals': '/api/clear_signals',
+        'btn-clear-preferences': '/api/clear_preferences'
+    };
+
+    Object.entries(clearActions).forEach(([id, url]) => {
+        document.getElementById(id).addEventListener('click', async () => {
+            if (!confirm('确定要清除吗？此操作不可撤销。')) return;
+            try {
+                await fetch(url, {method: 'POST'});
+                fetchStats();
+            } catch(e) { alert('操作失败'); }
+        });
+    });
+
+    window.onload = fetchStats;
+</script>
+{% endblock %}

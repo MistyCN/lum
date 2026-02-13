@@ -1,0 +1,15 @@
+cozepy
+openai
+pyaudio
+pygame
+numpy
+baidu-aip
+python-dotenv
+flask
+deepface
+opencv-python
+tensorflow
+keras
+pyOpenSSL
+importlib-metadata
+tf-keras

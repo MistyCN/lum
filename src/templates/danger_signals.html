@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}危险监测 - Luminest{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2 style="font-weight: 800; color: var(--text-main);">实时危险信号监测</h2>
+        <button onclick="fetchSignals()" class="secondary">
+            <span class="material-icons">refresh</span>
+            刷新数据
+        </button>
+    </div>
+
+    <div id="signals-container"></div>
+
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>正在同步实时数据...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function showLoading() {
+        document.getElementById('loading').style.display = 'block';
+    }
+    
+    function hideLoading() {
+        document.getElementById('loading').style.display = 'none';
+    }
+    
+    function fetchSignals() {
+        showLoading();
+        fetch('/api/signals')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('signals-container');
+                container.innerHTML = '';
+                
+                if (data.length === 0) {
+                    container.innerHTML = `
+                        <div class="card" style="text-align: center; padding: 3rem;">
+                            <span class="material-icons" style="font-size: 3rem; color: var(--success); margin-bottom: 1rem;">check_circle</span>
+                            <p style="font-size: 1.125rem; color: var(--text-muted);">暂未监测到任何危险信号，一切正常。</p>
+                        </div>
+                    `;
+                    hideLoading();
+                    return;
+                }
+
+                data.reverse().forEach((signal, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.style.animation = `fadeIn 0.5s ease-out ${index * 0.05}s forwards`;
+                    card.style.opacity = '0';
+                    card.style.marginBottom = '1.5rem';
+                    card.style.borderLeft = '4px solid var(--danger)';
+
+                    card.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                            <h3 style="margin-bottom: 0;">
+                                <span class="material-icons" style="color: var(--danger);">report</span>
+                                用户 ID: ${signal.user_id || '未知'}
+                            </h3>
+                            <span style="font-size: 0.875rem; color: var(--text-light); display: flex; align-items: center; gap: 0.25rem;">
+                                <span class="material-icons" style="font-size: 1rem;">schedule</span>
+                                ${formatDate(signal.timestamp)}
+                            </span>
+                        </div>
+                        <div class="grid-container" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 0;">
+                            <div>
+                                <h4 style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
+                                    <span class="material-icons" style="font-size: 1.125rem;">chat_bubble_outline</span>
+                                    触发消息
+                                </h4>
+                                <div style="background: var(--background); padding: 1rem; border-radius: var(--radius-md); font-size: 0.9375rem; border: 1px solid var(--border);">
+                                    ${signal.trigger_message || '无记录'}
+                                </div>
+                            </div>
+                            <div>
+                                <h4 style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
+                                    <span class="material-icons" style="font-size: 1.125rem;">psychology</span>
+                                    系统分析
+                                </h4>
+                                <div style="background: #fef2f2; padding: 1rem; border-radius: var(--radius-md); font-size: 0.9375rem; border: 1px solid #fee2e2; color: #991b1b;">
+                                    ${signal.analyze || '无分析'}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+                hideLoading();
+            })
+            .catch(error => {
+                console.error('Error fetching signals:', error);
+                hideLoading();
+            });
+    }
+
+    function formatDate(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleString('zh-CN', { 
+            year: 'numeric', month: '2-digit', day: '2-digit', 
+            hour: '2-digit', minute: '2-digit', second: '2-digit' 
+        });
+    }
+
+    // 初始加载数据
+    fetchSignals();
+    
+    // 每30秒自动刷新一次
+    setInterval(fetchSignals, 30000);
+</script>
+{% endblock %}

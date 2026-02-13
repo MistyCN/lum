@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Luminest工作坊 - 主页{% endblock %}
+
+{% block content %}
+<div class="welcome-card">
+    <h1>欢迎来到 Luminest工作坊</h1>
+    <p>专注于青少年心理健康的AI辅助系统</p>
+</div>
+
+<div class="grid-container"> 
+    <div class="card">
+        <h3><span class="material-icons">info</span> 本项目信息</h3>
+        <p><strong>项目名称:</strong> Luminest 工作坊</p>
+        <p><strong>版本:</strong> 1.21</p>
+        <p><strong>作者:</strong> 深圳实验学校光明部-知微光年项目组 陈鹤鑫 卢穆清</p>
+        <p><strong>联系方式:</strong> <a href="mailto:mistycn@qq.com">mistycn@qq.com</a></p>
+        <p><strong>说明:</strong> 全球发明大会中国区 参赛作品</p>
+    </div>
+
+    <div class="card">
+        <h3><span class="material-icons">bolt</span> 核心功能</h3>
+        <p>通过多模态（文本、表情、语音）监测，及时发现并预警心理危机信号。</p>
+        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+            <a href="/chat" class="button">开始测试</a>
+            <a href="/assessment" class="button secondary">查看评估</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

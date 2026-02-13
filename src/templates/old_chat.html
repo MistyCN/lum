@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luminest工作坊 - 与大语言模型对话</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Luminest工作坊</h2>
+        <a href="/">首页</a>
+        <a href="/danger_signals">危险信息监测</a>
+        <a href="/chat">与大语言模型对话</a>
+    </div>
+    <div class="content">
+        <div class="container">
+            <div id="chat-container" class="card"> <!-- Added card class -->
+                <h3>与大语言模型对话</h3>
+                <div id="message-list"></div> <!-- Removed message-list class, styles will be applied via #chat-container.card #message-list -->
+                <div class="chat-input-area">
+                    <input type="text" id="user-input" placeholder="输入您的消息">
+                    <button id="send-button">发送</button> <!-- Removed type=submit as it's handled by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const sendButton = document.getElementById('send-button');
+        const userInput = document.getElementById('user-input');
+        const messageList = document.getElementById('message-list');
+    
+        // Handle message sending on button click
+        sendButton.addEventListener('click', sendMessage);
+    
+        // Handle message sending on Enter key press
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); 
+                sendMessage();
+            }
+        });
+    
+        async function sendMessage() {
+            const userMessage = userInput.value.trim();
+            if (userMessage) {
+                appendMessage('user', userMessage);
+                userInput.value = '';
+                try {
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ message: userMessage })
+                    });
+
+                    const data = await response.json();
+                    if (data.response) {
+                        appendMessage('bot', data.response);
+                    }
+                } catch (error) {
+                    console.error('Error fetching chat response:', error);
+                    appendMessage('bot', '抱歉，出现错误，请稍后重试。');
+                }
+            }
+        }
+    
+        function appendMessage(sender, text) {
+            const messageElement = document.createElement('div');
+            const prefixSpan = document.createElement('span');
+            prefixSpan.classList.add(sender === 'user' ? 'chat-user-prefix' : 'chat-bot-prefix');
+            prefixSpan.textContent = sender === 'user' ? '您: ' : '机器人: ';
+            
+            messageElement.appendChild(prefixSpan);
+            messageElement.appendChild(document.createTextNode(text));
+            
+            messageList.appendChild(messageElement);
+            messageList.scrollTop = messageList.scrollHeight;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Luminest工作坊{% endblock %}</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="sidebar">
+        <h2>
+            <span class="material-icons">auto_awesome</span>
+            Luminest
+        </h2>
+        <a href="/" class="{% if request.path == '/' %}active{% endif %}">
+            <span class="material-icons">dashboard</span>
+            首页
+        </a>
+        <a href="/assessment" class="{% if request.path == '/assessment' %}active{% endif %}">
+            <span class="material-icons">assessment</span>
+            综合评估
+        </a>
+        <a href="/chat" class="{% if request.path == '/chat' %}active{% endif %}">
+            <span class="material-icons">chat</span>
+            对话测试
+        </a>
+        <a href="/stream_page" class="{% if request.path == '/stream_page' %}active{% endif %}">
+            <span class="material-icons">record_voice_over</span>
+            流式对话
+        </a>
+        <a href="/user_operations" class="{% if request.path == '/user_operations' %}active{% endif %}">
+            <span class="material-icons">settings</span>
+            用户操作
+        </a>
+        <a href="/danger_signals" class="{% if request.path == '/danger_signals' %}active{% endif %}">
+            <span class="material-icons">report_problem</span>
+            危险监测
+        </a>
+        <a href="/emotion_monitor" class="{% if request.path == '/emotion_monitor' %}active{% endif %}">
+            <span class="material-icons">face</span>
+            表情监控
+        </a>
+    </div>
+
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

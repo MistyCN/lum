@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}Luminest工作坊 - 对话测试{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <h3>对话测试</h3>
+    <div id="message-list" class="message-list"></div>
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        正在思考...
+    </div>
+    <div class="chat-input-area">
+        <input type="text" id="user-input" placeholder="输入你的消息，按回车发送">
+        <button id="send-button">
+            <span class="material-icons">send</span>
+            发送
+        </button>
+    </div>
+    
+    <div class="chat-input-area" style="border-top: 1px solid var(--border); background: var(--background);">
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
+            <span style="font-size: 0.875rem; color: var(--text-muted); font-weight: 600;">调试选项:</span>
+            <button id="clear-button" class="secondary">清除表观记录</button>
+            <button id="delete-button" class="secondary">清除实际记录</button>
+            <button id="save-button" class="secondary">保存记录</button>
+            <button id="analyze-button" class="secondary">启动分析</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const sendButton = document.getElementById('send-button');
+    const userInput = document.getElementById('user-input');
+    const messageList = document.getElementById('message-list');
+    const loading = document.getElementById('loading');
+    const CHAT_HISTORY_KEY = 'chatHistory';
+
+    // 页面加载时加入欢迎词
+    if (getChatHistory().length === 0) {
+        appendMessageWithoutSaving('bot','嘿，你好！我是小光喵，很高兴认识你！在‘知微光年’里，你可以把我当作一个可以信赖的朋友，有什么想说的，随时都可以告诉我。');
+    }
+    
+    // 页面加载时加载聊天记录
+    loadChatHistory();
+    
+    // 处理发送按钮点击
+    sendButton.addEventListener('click', sendMessage);
+
+    // 处理回车键发送
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    async function sendMessage() {
+        const userMessage = userInput.value.trim();
+        if (userMessage) {
+            // 显示用户消息
+            appendMessage('user', userMessage);
+            userInput.value = '';
+            
+            // 显示加载状态
+            loading.style.display = 'block';
+            messageList.scrollTop = messageList.scrollHeight;
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: userMessage })
+                });
+
+                const data = await response.json();
+                if (data.response) {
+                    appendMessage('bot', data.response);
+                }
+            } catch (error) {
+                console.error('Error fetching chat response:', error);
+                appendMessage('bot', '抱歉，出现错误，请稍后重试。');
+            } finally {
+                // 隐藏加载状态
+                loading.style.display = 'none';
+            }
+        }
+    }
+
+    function appendMessage(sender, text) {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', sender);
+        
+        const prefixSpan = document.createElement('span');
+        prefixSpan.classList.add('message-prefix');
+        prefixSpan.textContent = sender === 'user' ? '你' : '小光喵';
+        
+        messageElement.appendChild(prefixSpan);
+        messageElement.appendChild(document.createTextNode(text));
+        
+        messageList.appendChild(messageElement);
+        messageList.scrollTop = messageList.scrollHeight;
+
+        // 保存消息到 localStorage
+        saveMessageToHistory(sender, text);
+    }
+
+    function saveMessageToHistory(sender, text) {
+        const history = getChatHistory();
+        history.push({ sender, text });
+        localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(history));
+    }
+
+    function getChatHistory() {
+        const history = localStorage.getItem(CHAT_HISTORY_KEY);
+        return history ? JSON.parse(history) : [];
+    }
+
+    function loadChatHistory() {
+        const history = getChatHistory();
+        history.forEach(msg => appendMessageWithoutSaving(msg.sender, msg.text));
+    }
+
+    function appendMessageWithoutSaving(sender, text) {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', sender);
+        
+        const prefixSpan = document.createElement('span');
+        prefixSpan.classList.add('message-prefix');
+        prefixSpan.textContent = sender === 'user' ? '你' : '小光喵';
+        
+        messageElement.appendChild(prefixSpan);
+        messageElement.appendChild(document.createTextNode(text));
+        
+        messageList.appendChild(messageElement);
+        messageList.scrollTop = messageList.scrollHeight;
+    }
+
+    // 清除按钮
+    document.getElementById('clear-button').addEventListener('click', () => {
+        messageList.innerHTML = '';
+        localStorage.removeItem(CHAT_HISTORY_KEY);
+    });
+
+    // 实际记录删除
+    document.getElementById('delete-button').addEventListener('click', async () => {
+        if (!confirm('确定要清除服务器上的实际聊天记录吗？')) return;
+        try {
+            const response = await fetch('/api/del_history');
+            const data = await response.json();
+            if (data.status === 'success') alert('记录已清除');
+        } catch (e) { alert('操作失败'); }
+    });
+
+    // 保存记录
+    document.getElementById('save-button').addEventListener('click', async () => {
+        try {
+            const response = await fetch('/api/save_history');
+            const data = await response.json();
+            if (data.status === 'success') alert('记录已保存');
+        } catch (e) { alert('操作失败'); }
+    });
+
+    // 启动分析
+    document.getElementById('analyze-button').addEventListener('click', async () => {
+        try {
+            const response = await fetch('/api/analyze');
+            const data = await response.json();
+            alert('分析已启动: ' + (data.status || '成功'));
+        } catch (e) { alert('操作失败'); }
+    });
+</script>
+{% endblock %}

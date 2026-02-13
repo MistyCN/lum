@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}用户操作 - Luminest{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="margin-bottom: 2rem;">
+        <h2 style="font-weight: 800; color: var(--text-main);">用户操作面板</h2>
+        <p style="color: var(--text-muted);">管理您的聊天数据、分析偏好以及监控系统状态</p>
+    </div>
+
+    <div class="grid-container">
+        <!-- 聊天记录管理 -->
+        <div class="card">
+            <h3>
+                <span class="material-icons">history</span>
+                聊天记录管理
+            </h3>
+            <p>管理您的聊天历史记录，包括保存、清除和删除操作。</p>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem;">
+                <button id="save-button">保存记录</button>
+                <button id="clear-button" style="background-color: var(--warning);">清除显示</button>
+                <button id="delete-button" style="background-color: var(--danger);">彻底删除</button>
+            </div>
+            <div id="chat-result" class="status-badge" style="margin-top: 1rem; display: none; width: 100%;"></div>
+        </div>
+
+        <!-- 用户偏好分析 -->
+        <div class="card">
+            <h3>
+                <span class="material-icons">psychology</span>
+                用户偏好分析
+            </h3>
+            <p>分析您的聊天历史，了解您的兴趣偏好，优化聊天体验。</p>
+            <div style="margin-top: 1.5rem;">
+                <button id="analyze-button">启动偏好分析</button>
+            </div>
+            <div id="analyze-result" class="status-badge" style="margin-top: 1rem; display: none; width: 100%;"></div>
+        </div>
+
+        <!-- 系统状态 -->
+        <div class="card">
+            <h3>
+                <span class="material-icons">settings_suggest</span>
+                系统状态
+            </h3>
+            <p>查看系统当前状态 and 运行情况，确保服务正常运行。</p>
+            <div style="margin-top: 1.5rem;">
+                <button id="status-button" style="background-color: var(--secondary);">检查系统状态</button>
+            </div>
+            <div id="status-result" class="status-badge" style="margin-top: 1rem; display: none; width: 100%;"></div>
+        </div>
+        
+        <!-- 数据清理 -->
+        <div class="card">
+            <h3>
+                <span class="material-icons">auto_delete</span>
+                高级清理
+            </h3>
+            <p>清除表情识别历史或危机信号（此操作不可逆）。</p>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem;">
+                <button id="clear-emotions-button" style="background-color: var(--danger);">清理表情记录</button>
+                <button id="clear-signals-button" style="background-color: var(--danger);">清理危机信号</button>
+            </div>
+            <div id="data-clean-result" class="status-badge" style="margin-top: 1rem; display: none; width: 100%;"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Helper to show results
+    function showResult(elId, message, type = 'success') {
+        const el = document.getElementById(elId);
+        el.textContent = message;
+        el.style.display = 'flex';
+        el.className = 'status-badge ' + (type === 'success' ? 'status-active' : 'status-danger');
+        
+        // Auto hide after 5 seconds
+        setTimeout(() => {
+            el.style.display = 'none';
+        }, 5000);
+    }
+
+    // 保存聊天记录
+    const saveButton = document.getElementById('save-button');
+    saveButton.addEventListener('click', saveChatHistoryToFile);
+
+    async function saveChatHistoryToFile() {
+        try {
+            saveButton.disabled = true;
+            const response = await fetch('/api/save_history', { method: 'GET' });
+            const data = await response.json();
+            if (data.status === 'success') {
+                showResult('chat-result', '聊天记录已成功保存！');
+            } else {
+                showResult('chat-result', '保存失败: ' + data.message, 'danger');
+            }
+        } catch (error) {
+            showResult('chat-result', '请求出错，请检查网络', 'danger');
+        } finally {
+            saveButton.disabled = false;
+        }
+    }
+    
+    // 清除显示记录
+    const clearButton = document.getElementById('clear-button');
+    clearButton.addEventListener('click', () => {
+        localStorage.removeItem('chatHistory');
+        showResult('chat-result', '本地显示记录已清除');
+    });
+    
+    // 删除实际聊天记录
+    const deleteButton = document.getElementById("delete-button");
+    deleteButton.addEventListener('click', async () => {
+        if(!confirm('确定要彻底删除服务器上的聊天记录吗？此操作不可恢复。')) return;
+        try {
+            deleteButton.disabled = true;
+            const response = await fetch('/api/del_history', { method: 'GET' });
+            const data = await response.json();
+            if (data.status === 'success') {
+                showResult('chat-result', '服务器记录已成功删除');
+            } else {
+                showResult('chat-result', '删除失败: ' + data.message, 'danger');
+            }
+        } catch (error) {
+            showResult('chat-result', '请求出错', 'danger');
+        } finally {
+            deleteButton.disabled = false;
+        }
+    });
+    
+    // 启动偏好分析
+    const analyzeButton = document.getElementById("analyze-button");
+    analyzeButton.addEventListener('click', async () => {
+        try {
+            analyzeButton.textContent = '分析中...';
+            analyzeButton.disabled = true;
+            const response = await fetch('/api/analyze', { method: 'GET' });
+            const data = await response.json();
+            if (data.status === 'success') {
+                showResult('analyze-result', '偏好分析已完成并同步');
+            } else {
+                showResult('analyze-result', '分析出错: ' + data.message, 'danger');
+            }
+        } catch (error) {
+            showResult('analyze-result', '请求失败', 'danger');
+        } finally {
+            analyzeButton.textContent = '启动偏好分析';
+            analyzeButton.disabled = false;
+        }
+    });
+
+    // 检查系统状态
+    const statusButton = document.getElementById("status-button");
+    statusButton.addEventListener('click', async () => {
+        try {
+            statusButton.disabled = true;
+            const response = await fetch('/api/status', { method: 'GET' });
+            const data = await response.json();
+            showResult('status-result', `系统在线 - 延迟: ${data.latency || 'N/A'}ms`);
+        } catch (error) {
+            showResult('status-result', '无法连接到服务器', 'danger');
+        } finally {
+            statusButton.disabled = false;
+        }
+    });
+    
+    // 清除数据
+    async function clearData(api, resultId) {
+        if(!confirm('确定要执行此清理操作吗？')) return;
+        try {
+            const response = await fetch(api, { method: 'POST' });
+            const data = await response.json();
+            if (data.status === 'success') {
+                showResult(resultId, '清理完成');
+            } else {
+                showResult(resultId, '操作失败', 'danger');
+            }
+        } catch (error) {
+            showResult(resultId, '网络错误', 'danger');
+        }
+    }
+
+    document.getElementById('clear-emotions-button').addEventListener('click', () => clearData('/api/clear_emotions', 'data-clean-result'));
+    document.getElementById('clear-signals-button').addEventListener('click', () => clearData('/api/clear_signals', 'data-clean-result'));
+</script>
+{% endblock %}

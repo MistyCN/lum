@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}表情监控 - Luminest{% endblock %}
+
+{% block extra_head %}
+<style>
+    .emotion-monitor-layout {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 2rem;
+        align-items: start;
+    }
+    
+    #videoElement {
+        width: 100%;
+        aspect-ratio: 4/3;
+        background: #000;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        object-fit: cover;
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-top: 1rem;
+    }
+    
+    .status-active { background: #dcfce7; color: #166534; }
+    .status-waiting { background: #fef3c7; color: #92400e; }
+    
+    .emotion-bar-item {
+        margin-bottom: 1.25rem;
+    }
+    
+    .emotion-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.375rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .progress-track {
+        height: 0.5rem;
+        background: var(--background);
+        border-radius: 9999px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: var(--primary);
+        border-radius: 9999px;
+        transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .alert-card {
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+        color: #991b1b;
+        padding: 1rem;
+        border-radius: var(--radius-md);
+        display: none;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="margin-bottom: 2rem;">
+        <h2 style="font-weight: 800; color: var(--text-main);">实时多模态表情监控</h2>
+        <p style="color: var(--text-muted);">系统正在通过摄像头捕捉面部细微变化，并进行实时心理状态评估</p>
+    </div>
+
+    <div class="emotion-monitor-layout">
+        <div class="camera-section">
+            <video id="videoElement" autoplay playsinline></video>
+            <div id="cameraStatus" class="status-badge status-waiting">
+                <span class="material-icons" style="font-size: 1.25rem;">videocam_off</span>
+                摄像头状态: 正在初始化...
+            </div>
+        </div>
+        
+        <div class="analysis-card card">
+            <h3 style="border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                <span class="material-icons">analytics</span>
+                分析引擎
+            </h3>
+            
+            <div style="margin-bottom: 2rem;">
+                <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.25rem;">当前主导情绪</div>
+                <div id="dominantEmotion" style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">-</div>
+            </div>
+
+            <div class="emotion-list">
+                {% for emotion, label in [('happy', '开心'), ('sad', '悲伤'), ('angry', '愤怒'), ('fear', '恐惧'), ('disgust', '厌恶'), ('surprise', '惊讶'), ('neutral', '中性')] %}
+                <div class="emotion-bar-item">
+                    <div class="emotion-info">
+                        <span>{{ label }}</span>
+                        <span id="{{ emotion }}-percent">0%</span>
+                    </div>
+                    <div class="progress-track">
+                        <div id="{{ emotion }}" class="progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="alert-card" id="dangerAlert">
+                <span class="material-icons">warning</span>
+                <span>检测到潜在抑郁风险，请重点关注！</span>
+            </div>
+            
+            <div id="analysisStatus" class="status-badge" style="margin-top: 1.5rem; width: 100%; justify-content: center;">
+                分析状态: <span>等待连接</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let video = document.getElementById('videoElement');
+    let cameraStatus = document.getElementById('cameraStatus');
+    let analysisStatus = document.getElementById('analysisStatus');
+    let dangerAlert = document.getElementById('dangerAlert');
+    let canvas = document.createElement('canvas');
+    let analysisInterval = null;
+    
+    async function initCamera() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            cameraStatus.className = 'status-badge status-active';
+            cameraStatus.innerHTML = '<span class="material-icons">videocam</span> 摄像头已就绪';
+            startAnalysis();
+        } catch (err) {
+            console.error("Camera error:", err);
+            cameraStatus.style.background = '#fee2e2';
+            cameraStatus.style.color = '#991b1b';
+            cameraStatus.innerHTML = '<span class="material-icons">error</span> 无法访问摄像头';
+        }
+    }
+
+    function startAnalysis() {
+        analysisStatus.innerHTML = '<div class="spinner" style="width:16px;height:16px;"></div> 引擎分析中...';
+        analysisInterval = setInterval(async () => {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                const imageData = canvas.toDataURL('image/jpeg');
+                
+                try {
+                    const response = await fetch('/api/capture_emotion', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image: imageData })
+                    });
+                    const data = await response.json();
+                    if (data.status === 'success') {
+                        updateUI(data.data);
+                    }
+                } catch (err) {
+                    console.error("Analysis error:", err);
+                }
+            }
+        }, 2000);
+    }
+
+    function updateUI(data) {
+        document.getElementById('dominantEmotion').innerText = translateEmotion(data.dominant_emotion);
+        
+        const emotions = data.emotions;
+        for (let emotion in emotions) {
+            const percent = Math.round(emotions[emotion]);
+            const fill = document.getElementById(emotion);
+            const text = document.getElementById(emotion + '-percent');
+            if (fill && text) {
+                fill.style.width = percent + '%';
+                text.innerText = percent + '%';
+                // 根据数值改变颜色
+                if (percent > 50) fill.style.background = 'var(--primary)';
+                else fill.style.background = 'var(--primary-light)';
+            }
+        }
+
+        const dangerEmotions = ['sad', 'angry', 'fear', 'disgust'];
+        if (dangerEmotions.includes(data.dominant_emotion)) {
+            dangerAlert.style.display = 'flex';
+        } else {
+            dangerAlert.style.display = 'none';
+        }
+    }
+
+    function translateEmotion(emotion) {
+        const map = {
+            'happy': '开心', 'sad': '悲伤', 'angry': '愤怒',
+            'fear': '恐惧', 'disgust': '厌恶', 'surprise': '惊讶', 'neutral': '中性'
+        };
+        return map[emotion] || emotion;
+    }
+
+    window.onload = initCamera;
+</script>
+{% endblock %}
